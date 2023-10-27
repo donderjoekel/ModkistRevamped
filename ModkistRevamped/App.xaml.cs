@@ -9,7 +9,11 @@ using System.Windows.Threading;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Modio;
+using TNRD.Modkist.Models;
 using TNRD.Modkist.Services;
+using TNRD.Modkist.Settings;
 using TNRD.Modkist.ViewModels.Pages;
 using TNRD.Modkist.ViewModels.Windows;
 using TNRD.Modkist.Views.Pages;
@@ -34,7 +38,30 @@ public partial class App
             c => { c.SetBasePath(Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)); })
         .ConfigureServices((context, services) =>
         {
+            services.Configure<ModioSettings>(context.Configuration.GetSection(ModioSettings.SECTION));
+
             services.AddHostedService<ApplicationHostService>();
+
+            services.AddSingleton<Client>(provider =>
+            {
+                SettingsService settingsService = provider.GetRequiredService<SettingsService>();
+                IOptions<ModioSettings> modioOptions = provider.GetRequiredService<IOptions<ModioSettings>>();
+
+                if (settingsService.HasValidAccessToken())
+                {
+                    return new Client(new Uri("https://g-3213.modapi.io/v1"),
+                        new Credentials(modioOptions.Value.ApiKey, settingsService.AccessToken!.Value!));
+                }
+                else
+                {
+                    return new Client(new Uri("https://g-3213.modapi.io/v1"),
+                        new Credentials(modioOptions.Value.ApiKey));
+                }
+            });
+
+            services.AddSingleton<AuthClient>(provider => provider.GetRequiredService<Client>().Auth);
+            services.AddSingleton<ModsClient>(provider => provider.GetRequiredService<Client>().Games[3213].Mods);
+            services.AddSingleton<UserClient>(provider => provider.GetRequiredService<Client>().User);
 
             services.AddSingleton<MainWindow>();
             services.AddSingleton<MainWindowViewModel>();
@@ -54,8 +81,14 @@ public partial class App
             services.AddSingleton<SettingsPage>();
             services.AddSingleton<SettingsViewModel>();
 
-            services.AddSingleton<InitializationPage>();
-            services.AddSingleton<InitializationViewModel>();
+            services.AddSingleton<InitializationPage>().AddSingleton<InitializationViewModel>();
+
+            services.AddSingleton<LoginModel>();
+            services.AddSingleton<VerifyLoginPage>().AddSingleton<VerifyLoginViewModel>();
+
+            services.AddSingleton<RequestLoginCodePage>().AddSingleton<RequestLoginCodeViewModel>();
+
+            services.AddSingleton<EnterLoginCodePage>().AddSingleton<EnterLoginCodeViewModel>();
         }).Build();
 
     /// <summary>
