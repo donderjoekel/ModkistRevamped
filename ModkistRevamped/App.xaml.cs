@@ -42,13 +42,20 @@ public partial class App
             services.AddSingleton<ISnackbarService, SnackbarService>();
             services.AddSingleton<IContentDialogService, ContentDialogService>();
 
+            services.AddSingleton<SteamService>();
             services.AddSingleton<SettingsService>();
+
             services.AddSingleton<DashboardPage>();
             services.AddSingleton<DashboardViewModel>();
+
             services.AddSingleton<DataPage>();
             services.AddSingleton<DataViewModel>();
+
             services.AddSingleton<SettingsPage>();
             services.AddSingleton<SettingsViewModel>();
+
+            services.AddSingleton<InitializationPage>();
+            services.AddSingleton<InitializationViewModel>();
         }).Build();
 
     /// <summary>
