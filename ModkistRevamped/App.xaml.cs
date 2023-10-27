@@ -14,6 +14,7 @@ using TNRD.Modkist.ViewModels.Pages;
 using TNRD.Modkist.ViewModels.Windows;
 using TNRD.Modkist.Views.Pages;
 using TNRD.Modkist.Views.Windows;
+using Wpf.Ui;
 
 namespace TNRD.Modkist;
 
@@ -41,6 +42,7 @@ public partial class App
             services.AddSingleton<ISnackbarService, SnackbarService>();
             services.AddSingleton<IContentDialogService, ContentDialogService>();
 
+            services.AddSingleton<SettingsService>();
             services.AddSingleton<DashboardPage>();
             services.AddSingleton<DashboardViewModel>();
             services.AddSingleton<DataPage>();

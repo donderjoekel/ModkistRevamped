@@ -3,34 +3,42 @@
 // Copyright (C) Leszek Pomianowski and WPF UI Contributors.
 // All Rights Reserved.
 
+using TNRD.Modkist.Services;
+using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
 
 namespace TNRD.Modkist.ViewModels.Pages;
 
 public partial class SettingsViewModel : ObservableObject, INavigationAware
 {
-    private bool _isInitialized = false;
+    private readonly SettingsService settingsService;
 
     [ObservableProperty] private string _appVersion = string.Empty;
 
-    [ObservableProperty] private Wpf.Ui.Appearance.ThemeType _currentTheme = Wpf.Ui.Appearance.ThemeType.Unknown;
+    public SettingsViewModel(SettingsService settingsService)
+    {
+        this.settingsService = settingsService;
+    }
+
+    public ApplicationTheme Theme
+    {
+        get => settingsService.Theme;
+        private set => settingsService.Theme = value;
+    }
+
+    public string SteamDirectory
+    {
+        get => settingsService.ZeepkistDirectory;
+        set => settingsService.ZeepkistDirectory = value;
+    }
 
     public void OnNavigatedTo()
     {
-        if (!_isInitialized)
-            InitializeViewModel();
+        AppVersion = $"ModkistRevamped - {GetAssemblyVersion()}";
     }
 
     public void OnNavigatedFrom()
     {
-    }
-
-    private void InitializeViewModel()
-    {
-        CurrentTheme = Wpf.Ui.Appearance.Theme.GetAppTheme();
-        AppVersion = $"ModkistRevamped - {GetAssemblyVersion()}";
-
-        _isInitialized = true;
     }
 
     private string GetAssemblyVersion()
@@ -45,22 +53,20 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         switch (parameter)
         {
             case "theme_light":
-                if (CurrentTheme == Wpf.Ui.Appearance.ThemeType.Light)
-                    break;
-
-                Wpf.Ui.Appearance.Theme.Apply(Wpf.Ui.Appearance.ThemeType.Light);
-                CurrentTheme = Wpf.Ui.Appearance.ThemeType.Light;
-
+                SwitchToTheme(ApplicationTheme.Light);
                 break;
-
             default:
-                if (CurrentTheme == Wpf.Ui.Appearance.ThemeType.Dark)
-                    break;
-
-                Wpf.Ui.Appearance.Theme.Apply(Wpf.Ui.Appearance.ThemeType.Dark);
-                CurrentTheme = Wpf.Ui.Appearance.ThemeType.Dark;
-
+                SwitchToTheme(ApplicationTheme.Dark);
                 break;
         }
+    }
+
+    private void SwitchToTheme(ApplicationTheme theme)
+    {
+        if (Theme == theme)
+            return;
+
+        ApplicationThemeManager.Apply(theme);
+        Theme = theme;
     }
 }

@@ -4,6 +4,8 @@
 // All Rights Reserved.
 
 using TNRD.Modkist.ViewModels.Windows;
+using Wpf.Ui;
+using Wpf.Ui.Appearance;
 
 namespace TNRD.Modkist.Views.Windows;
 
@@ -19,7 +21,7 @@ public partial class MainWindow
         IContentDialogService contentDialogService
     )
     {
-        Wpf.Ui.Appearance.Watcher.Watch(this);
+        SystemThemeWatcher.Watch(this);
 
         ViewModel = viewModel;
         DataContext = this;

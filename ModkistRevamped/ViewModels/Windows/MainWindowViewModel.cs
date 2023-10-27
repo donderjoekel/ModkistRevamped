@@ -4,7 +4,7 @@
 // All Rights Reserved.
 
 using System.Collections.ObjectModel;
-using Wpf.Ui.Common;
+using TNRD.Modkist.Views.Pages;
 using Wpf.Ui.Controls;
 
 namespace TNRD.Modkist.ViewModels.Windows;
@@ -20,13 +20,13 @@ public partial class MainWindowViewModel : ObservableObject
         {
             Content = "Home",
             Icon = new SymbolIcon { Symbol = SymbolRegular.Home24 },
-            TargetPageType = typeof(Views.Pages.DashboardPage)
+            TargetPageType = typeof(DashboardPage)
         },
         new NavigationViewItem()
         {
             Content = "Data",
             Icon = new SymbolIcon { Symbol = SymbolRegular.DataHistogram24 },
-            TargetPageType = typeof(Views.Pages.DataPage)
+            TargetPageType = typeof(DataPage)
         }
     };
 
@@ -37,7 +37,7 @@ public partial class MainWindowViewModel : ObservableObject
         {
             Content = "Settings",
             Icon = new SymbolIcon { Symbol = SymbolRegular.Settings24 },
-            TargetPageType = typeof(Views.Pages.SettingsPage)
+            TargetPageType = typeof(SettingsPage)
         }
     };
 
