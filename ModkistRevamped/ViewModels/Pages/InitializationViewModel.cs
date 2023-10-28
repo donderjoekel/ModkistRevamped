@@ -52,7 +52,7 @@ public class InitializationViewModel : ObservableObject, INavigationAware
             await Task.Delay(Random.Shared.Next(1000, 1500));
         }
 
-        navigationService.Navigate(typeof(VerifyLoginPage));
+        navigationService.Navigate(typeof(VerifyBepInExPage));
     }
 
     void INavigationAware.OnNavigatedFrom()

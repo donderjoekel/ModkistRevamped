@@ -20,6 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="DotNetZip" Version="1.16.0"/>
         <PackageReference Include="Gameloop.Vdf" Version="0.6.2"/>
         <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0"/>
         <PackageReference Include="Modio" Version="1.0.0"/>

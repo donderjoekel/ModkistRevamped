@@ -80,10 +80,11 @@ public partial class App
 
             services.AddSingleton<LoginModel>();
 
-            services.AddSingleton<DashboardPage>().AddSingleton<DashboardViewModel>();
-            services.AddSingleton<DataPage>().AddSingleton<DataViewModel>();
+            // services.AddSingleton<DashboardPage>().AddSingleton<DashboardViewModel>();
+            // services.AddSingleton<DataPage>().AddSingleton<DataViewModel>();
             services.AddSingleton<SettingsPage>().AddSingleton<SettingsViewModel>();
             services.AddSingleton<InitializationPage>().AddSingleton<InitializationViewModel>();
+            services.AddSingleton<VerifyBepInExPage>().AddSingleton<VerifyBepInExViewModel>();
             services.AddSingleton<VerifyLoginPage>().AddSingleton<VerifyLoginViewModel>();
             services.AddSingleton<RequestLoginCodePage>().AddSingleton<RequestLoginCodeViewModel>();
             services.AddSingleton<EnterLoginCodePage>().AddSingleton<EnterLoginCodeViewModel>();
