@@ -11,23 +11,36 @@ namespace TNRD.Modkist.ViewModels.Windows;
 
 public partial class MainWindowViewModel : ObservableObject
 {
-    [ObservableProperty] private string _applicationTitle = "WPF UI - ModkistRevamped";
+    [ObservableProperty] private string _applicationTitle = "Modkist - Revamped";
 
     [ObservableProperty]
     private ObservableCollection<object> _menuItems = new()
     {
         new NavigationViewItem()
         {
-            Content = "Home",
-            Icon = new SymbolIcon { Symbol = SymbolRegular.Home24 },
-            TargetPageType = typeof(DashboardPage)
+            Content = "Mods",
+            Icon = new SymbolIcon { Symbol = SymbolRegular.AppsAddIn24 },
+            TargetPageType = typeof(BrowsePluginsPage)
         },
         new NavigationViewItem()
         {
-            Content = "Data",
-            Icon = new SymbolIcon { Symbol = SymbolRegular.DataHistogram24 },
-            TargetPageType = typeof(DataPage)
-        }
+            Content = "Blueprints",
+            Icon = new SymbolIcon { Symbol = SymbolRegular.Cube24 },
+            TargetPageType = typeof(BrowseBlueprintsPage)
+        },
+        // new NavigationViewItem()
+        // {
+        //     Content = "Guides",
+        //     Icon = new SymbolIcon { Symbol = SymbolRegular.Book24 },
+        //     TargetPageType = typeof(BrowseGuidesPage)
+        // },
+        new NavigationViewItemSeparator()
+        // new NavigationViewItem()
+        // {
+        //     Content = "Installed Mods",
+        //     Icon = new SymbolIcon { Symbol = SymbolRegular.Apps24 },
+        //     TargetPageType = typeof(InstalledModsPage)
+        // }
     };
 
     [ObservableProperty]

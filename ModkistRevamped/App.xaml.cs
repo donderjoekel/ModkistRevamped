@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Modio;
+using TNRD.Modkist.Factories.Controls;
 using TNRD.Modkist.Models;
 using TNRD.Modkist.Services;
 using TNRD.Modkist.Settings;
@@ -63,6 +64,11 @@ public partial class App
             services.AddSingleton<ModsClient>(provider => provider.GetRequiredService<Client>().Games[3213].Mods);
             services.AddSingleton<UserClient>(provider => provider.GetRequiredService<Client>().User);
 
+            services.AddHttpClient();
+            services.AddSingleton<ImageCachingService>();
+
+            services.AddSingleton<ModCardFactory>();
+
             services.AddSingleton<MainWindow>();
             services.AddSingleton<MainWindowViewModel>();
             services.AddSingleton<INavigationService, NavigationService>();
@@ -72,23 +78,17 @@ public partial class App
             services.AddSingleton<SteamService>();
             services.AddSingleton<SettingsService>();
 
-            services.AddSingleton<DashboardPage>();
-            services.AddSingleton<DashboardViewModel>();
-
-            services.AddSingleton<DataPage>();
-            services.AddSingleton<DataViewModel>();
-
-            services.AddSingleton<SettingsPage>();
-            services.AddSingleton<SettingsViewModel>();
-
-            services.AddSingleton<InitializationPage>().AddSingleton<InitializationViewModel>();
-
             services.AddSingleton<LoginModel>();
+
+            services.AddSingleton<DashboardPage>().AddSingleton<DashboardViewModel>();
+            services.AddSingleton<DataPage>().AddSingleton<DataViewModel>();
+            services.AddSingleton<SettingsPage>().AddSingleton<SettingsViewModel>();
+            services.AddSingleton<InitializationPage>().AddSingleton<InitializationViewModel>();
             services.AddSingleton<VerifyLoginPage>().AddSingleton<VerifyLoginViewModel>();
-
             services.AddSingleton<RequestLoginCodePage>().AddSingleton<RequestLoginCodeViewModel>();
-
             services.AddSingleton<EnterLoginCodePage>().AddSingleton<EnterLoginCodeViewModel>();
+            services.AddSingleton<BrowsePluginsPage>().AddSingleton<BrowsePluginsViewModel>();
+            services.AddSingleton<BrowseBlueprintsPage>();
         }).Build();
 
     /// <summary>

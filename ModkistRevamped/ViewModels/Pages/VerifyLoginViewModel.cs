@@ -19,7 +19,7 @@ public class VerifyLoginViewModel : ObservableObject, INavigationAware
     async void INavigationAware.OnNavigatedTo()
     {
         Type pageToNavigateTo = settingsService.HasValidAccessToken()
-            ? typeof(DashboardPage)
+            ? typeof(BrowsePluginsPage)
             : typeof(RequestLoginCodePage);
 
         await Task.Delay(Random.Shared.Next(1000, 1500)); // Artificial delay to make it feel better
