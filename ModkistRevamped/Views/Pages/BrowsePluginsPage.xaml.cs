@@ -1,18 +1,11 @@
 ﻿using System.Windows.Controls;
-using TNRD.Modkist.ViewModels.Pages;
-using Wpf.Ui.Controls;
 
 namespace TNRD.Modkist.Views.Pages;
 
-public partial class BrowsePluginsPage : Page, INavigableView<BrowsePluginsViewModel>
+public partial class BrowsePluginsPage : Page
 {
-    public BrowsePluginsPage(BrowsePluginsViewModel viewModel)
+    public BrowsePluginsPage()
     {
-        ViewModel = viewModel;
-        DataContext = this;
-
         InitializeComponent();
     }
-
-    public BrowsePluginsViewModel ViewModel { get; set; }
 }

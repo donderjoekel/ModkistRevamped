@@ -7,8 +7,8 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:windows="clr-namespace:TNRD.Modkist.Views.Windows"
     Title="{Binding ViewModel.ApplicationTitle, Mode=OneWay}"
-    Width="1100"
-    Height="650"
+    Width="1280"
+    Height="720"
     d:DataContext="{d:DesignInstance windows:MainWindow,
                                      IsDesignTimeCreatable=True}"
     d:DesignHeight="450"

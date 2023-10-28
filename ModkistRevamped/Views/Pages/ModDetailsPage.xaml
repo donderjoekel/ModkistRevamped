@@ -1,0 +1,45 @@
+﻿<Page
+    x:Class="TNRD.Modkist.Views.Pages.ModDetailsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:dependencies="clr-namespace:TNRD.Modkist.Views.Controls.Details.Dependencies"
+    xmlns:details="clr-namespace:TNRD.Modkist.Views.Controls.Details"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:pages="clr-namespace:TNRD.Modkist.Views.Pages"
+    xmlns:sidebar="clr-namespace:TNRD.Modkist.Views.Controls.Details.Sidebar"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    d:DataContext="{d:DesignInstance pages:ModDetailsPage,
+                                     IsDesignTimeCreatable=False}"
+    d:DesignHeight="900"
+    d:DesignWidth="1600"
+    ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    ui:NavigationView.HeaderContent="{Binding ViewModel.Name}"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    mc:Ignorable="d">
+
+    <StackPanel Orientation="Vertical">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="960*" />
+                <ColumnDefinition Width="270*" />
+            </Grid.ColumnDefinitions>
+            <details:ModImages
+                Grid.Column="0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch" />
+            <sidebar:ModSideBar Grid.Column="1" />
+        </Grid>
+        <Grid Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="960*" />
+                <ColumnDefinition Width="270*" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Vertical">
+                <dependencies:ModDependencies />
+                <details:ModDescription />
+            </StackPanel>
+        </Grid>
+    </StackPanel>
+</Page>

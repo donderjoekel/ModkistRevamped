@@ -11,6 +11,8 @@
             <ResourceDictionary.MergedDictionaries>
                 <ui:ThemesDictionary Theme="Dark" />
                 <ui:ControlsDictionary />
+                <ResourceDictionary Source="Views/Controls/Details/Sidebar/ModInfoSection/ModInfoSection.xaml" />
+                <ResourceDictionary Source="Views/Controls/Details/Sidebar/ModTag/ModTag.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

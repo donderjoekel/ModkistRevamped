@@ -1,0 +1,37 @@
+﻿<UserControl
+    x:Class="TNRD.Modkist.Views.Controls.Details.Sidebar.ModRatings"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sidebar="clr-namespace:TNRD.Modkist.Views.Controls.Details.Sidebar"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:modInfoSection="clr-namespace:TNRD.Modkist.Views.Controls.Details.Sidebar.ModInfoSection"
+    d:DataContext="{d:DesignInstance sidebar:ModRatings,
+                                     IsDesignTimeCreatable=False}"
+    d:DesignHeight="400"
+    d:DesignWidth="300"
+    ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    mc:Ignorable="d">
+    <modInfoSection:ModInfoSection Header="Rating">
+        <Grid Margin="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <ui:Button
+                Grid.Column="0"
+                Margin="0,0,4,0"
+                HorizontalAlignment="Stretch"
+                Content="{Binding ViewModel.PositiveRatings}"
+                Icon="{ui:SymbolIcon ThumbLike24}" />
+            <ui:Button
+                Grid.Column="1"
+                Margin="4,0,0,0"
+                HorizontalAlignment="Stretch"
+                Content="{Binding ViewModel.NegativeRatings}"
+                Icon="{ui:SymbolIcon ThumbDislike24}" />
+        </Grid>
+    </modInfoSection:ModInfoSection>
+</UserControl>

@@ -39,57 +39,61 @@ public partial class App
             c => { c.SetBasePath(Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)); })
         .ConfigureServices((context, services) =>
         {
-            services.Configure<ModioSettings>(context.Configuration.GetSection(ModioSettings.SECTION));
-
             services.AddHostedService<ApplicationHostService>();
 
+            // Configuration
+            services.Configure<ModioSettings>(context.Configuration.GetSection(ModioSettings.SECTION));
+
+            // Main mod.io client with authentication
             services.AddSingleton<Client>(provider =>
             {
                 SettingsService settingsService = provider.GetRequiredService<SettingsService>();
                 IOptions<ModioSettings> modioOptions = provider.GetRequiredService<IOptions<ModioSettings>>();
 
-                if (settingsService.HasValidAccessToken())
-                {
-                    return new Client(new Uri("https://g-3213.modapi.io/v1"),
-                        new Credentials(modioOptions.Value.ApiKey, settingsService.AccessToken!.Value!));
-                }
-                else
-                {
-                    return new Client(new Uri("https://g-3213.modapi.io/v1"),
-                        new Credentials(modioOptions.Value.ApiKey));
-                }
+                return settingsService.HasValidAccessToken()
+                    ? new Client(new Uri("https://g-3213.modapi.io/v1"),
+                        new Credentials(modioOptions.Value.ApiKey, settingsService.AccessToken!.Value!))
+                    : new Client(new Uri("https://g-3213.modapi.io/v1"), new Credentials(modioOptions.Value.ApiKey));
             });
 
+            // Mod.io clients
             services.AddSingleton<AuthClient>(provider => provider.GetRequiredService<Client>().Auth);
             services.AddSingleton<ModsClient>(provider => provider.GetRequiredService<Client>().Games[3213].Mods);
             services.AddSingleton<UserClient>(provider => provider.GetRequiredService<Client>().User);
 
+            // Image loading
             services.AddHttpClient();
             services.AddSingleton<ImageCachingService>();
 
+            // Factories
             services.AddSingleton<ModCardFactory>();
+            services.AddSingleton<ModDependencyFactory>();
 
+            // Main window and services
             services.AddSingleton<MainWindow>();
             services.AddSingleton<MainWindowViewModel>();
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<ISnackbarService, SnackbarService>();
             services.AddSingleton<IContentDialogService, ContentDialogService>();
 
+            // Custom services
             services.AddSingleton<SteamService>();
+            services.AddSingleton<SelectedModService>();
             services.AddSingleton<SettingsService>();
 
+            // Shared models
             services.AddSingleton<LoginModel>();
 
-            // services.AddSingleton<DashboardPage>().AddSingleton<DashboardViewModel>();
-            // services.AddSingleton<DataPage>().AddSingleton<DataViewModel>();
+            // Pages and viewmodels
             services.AddSingleton<SettingsPage>().AddSingleton<SettingsViewModel>();
             services.AddSingleton<InitializationPage>().AddSingleton<InitializationViewModel>();
             services.AddSingleton<VerifyBepInExPage>().AddSingleton<VerifyBepInExViewModel>();
             services.AddSingleton<VerifyLoginPage>().AddSingleton<VerifyLoginViewModel>();
             services.AddSingleton<RequestLoginCodePage>().AddSingleton<RequestLoginCodeViewModel>();
             services.AddSingleton<EnterLoginCodePage>().AddSingleton<EnterLoginCodeViewModel>();
-            services.AddSingleton<BrowsePluginsPage>().AddSingleton<BrowsePluginsViewModel>();
+            services.AddSingleton<BrowsePluginsPage>();
             services.AddSingleton<BrowseBlueprintsPage>();
+            services.AddTransient<ModDetailsPage>().AddTransient<ModDetailsViewModel>();
         }).Build();
 
     /// <summary>

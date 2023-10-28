@@ -1,0 +1,24 @@
+﻿<UserControl
+    x:Class="TNRD.Modkist.Views.Controls.Details.ModDescription"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:details="clr-namespace:TNRD.Modkist.Views.Controls.Details"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mdXaml="clr-namespace:MdXaml;assembly=MdXaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    d:DataContext="{d:DesignInstance details:ModDescription,
+                                     IsDesignTimeCreatable=False}"
+    d:DesignHeight="900"
+    d:DesignWidth="1600"
+    ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    mc:Ignorable="d">
+    <StackPanel Visibility="{Binding ViewModel.SectionVisibility}">
+        <ui:TextBlock
+            Appearance="Primary"
+            FontTypography="Subtitle"
+            Text="Description" />
+        <mdXaml:MarkdownScrollViewer Margin="0,8" Markdown="{Binding ViewModel.Markdown}" />
+    </StackPanel>
+</UserControl>

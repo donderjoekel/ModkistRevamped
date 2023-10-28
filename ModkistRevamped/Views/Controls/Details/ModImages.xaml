@@ -1,0 +1,123 @@
+﻿<UserControl
+    x:Class="TNRD.Modkist.Views.Controls.Details.ModImages"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:details="clr-namespace:TNRD.Modkist.Views.Controls.Details"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    d:DataContext="{d:DesignInstance details:ModImages,
+                                     IsDesignTimeCreatable=False}"
+    d:DesignHeight="900"
+    d:DesignWidth="1600"
+    ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <Storyboard x:Key="ButtonFadeIn">
+            <DoubleAnimation
+                Storyboard.TargetProperty="Opacity"
+                To="0.5"
+                Duration="0:0:0.1" />
+        </Storyboard>
+        <Storyboard x:Key="ButtonFadeOut">
+            <DoubleAnimation
+                Storyboard.TargetProperty="Opacity"
+                To="0"
+                Duration="0:0:0.1" />
+        </Storyboard>
+    </UserControl.Resources>
+
+    <Grid
+        Margin="0,8,4,8"
+        HorizontalAlignment="Stretch"
+        VerticalAlignment="Stretch">
+        <Grid>
+            <ui:Image
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                CornerRadius="8"
+                Source="{Binding ViewModel.Image}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseEnter">
+                        <i:InvokeCommandAction Command="{Binding ViewModel.ImageMouseEnterCommand}" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseLeave">
+                        <i:InvokeCommandAction Command="{Binding ViewModel.ImageMouseLeaveCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </ui:Image>
+            <ui:Button
+                HorizontalAlignment="Left"
+                VerticalAlignment="Stretch"
+                Appearance="Dark"
+                Command="{Binding ViewModel.PreviousImageCommand}"
+                CornerRadius="8,0,0,8"
+                Icon="{Binding ViewModel.IconLeft}"
+                Opacity="0.5">
+                <ui:Button.Style>
+                    <!--  ReSharper disable once Xaml.StaticResourceNotResolved  -->
+                    <Style BasedOn="{StaticResource DefaultUiButtonStyle}" TargetType="ui:Button">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ViewModel.ShouldAnimate}" Value="True">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard Storyboard="{StaticResource ButtonFadeIn}" />
+                                </DataTrigger.EnterActions>
+                                <DataTrigger.ExitActions>
+                                    <BeginStoryboard Storyboard="{StaticResource ButtonFadeOut}" />
+                                </DataTrigger.ExitActions>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ui:Button.Style>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseEnter">
+                        <i:InvokeCommandAction Command="{Binding ViewModel.ButtonMouseEnterCommand}" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseLeave">
+                        <i:InvokeCommandAction Command="{Binding ViewModel.ButtonMouseLeaveCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </ui:Button>
+            <ui:Button
+                HorizontalAlignment="Right"
+                VerticalAlignment="Stretch"
+                Appearance="Dark"
+                Command="{Binding ViewModel.NextImageCommand}"
+                CornerRadius="0,8,8,0"
+                Icon="{Binding ViewModel.IconRight}"
+                Opacity="0.5">
+                <ui:Button.Style>
+                    <!--  ReSharper disable once Xaml.StaticResourceNotResolved  -->
+                    <Style BasedOn="{StaticResource DefaultUiButtonStyle}" TargetType="ui:Button">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ViewModel.ShouldAnimate}" Value="True">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard Storyboard="{StaticResource ButtonFadeIn}" />
+                                </DataTrigger.EnterActions>
+                                <DataTrigger.ExitActions>
+                                    <BeginStoryboard Storyboard="{StaticResource ButtonFadeOut}" />
+                                </DataTrigger.ExitActions>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ui:Button.Style>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="MouseEnter">
+                        <i:InvokeCommandAction Command="{Binding ViewModel.ButtonMouseEnterCommand}" />
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseLeave">
+                        <i:InvokeCommandAction Command="{Binding ViewModel.ButtonMouseLeaveCommand}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </ui:Button>
+        </Grid>
+        <ui:ProgressRing
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            IsIndeterminate="True"
+            Visibility="{Binding ViewModel.ProgressVisibility}" />
+    </Grid>
+</UserControl>

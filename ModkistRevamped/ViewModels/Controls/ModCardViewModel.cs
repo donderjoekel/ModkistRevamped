@@ -1,6 +1,8 @@
 ﻿using System.Windows.Media.Imaging;
 using Modio.Models;
 using TNRD.Modkist.Services;
+using TNRD.Modkist.Views.Pages;
+using Wpf.Ui;
 using Visibility = System.Windows.Visibility;
 
 namespace TNRD.Modkist.ViewModels.Controls;
@@ -8,11 +10,20 @@ namespace TNRD.Modkist.ViewModels.Controls;
 public partial class ModCardViewModel : ObservableObject
 {
     private readonly ImageCachingService imageCachingService;
+    private readonly INavigationService navigationService;
+    private readonly SelectedModService selectedModService;
     private readonly Mod mod;
 
-    public ModCardViewModel(ImageCachingService imageCachingService, Mod mod)
+    public ModCardViewModel(
+        ImageCachingService imageCachingService,
+        INavigationService navigationService,
+        SelectedModService selectedModService,
+        Mod mod
+    )
     {
         this.imageCachingService = imageCachingService;
+        this.navigationService = navigationService;
+        this.selectedModService = selectedModService;
         this.mod = mod;
 
         Title = this.mod.Name!;
@@ -36,5 +47,7 @@ public partial class ModCardViewModel : ObservableObject
     [RelayCommand]
     private void Clicked()
     {
+        selectedModService.SetSelectedMod(mod, false);
+        navigationService.NavigateWithHierarchy(typeof(ModDetailsPage));
     }
 }
