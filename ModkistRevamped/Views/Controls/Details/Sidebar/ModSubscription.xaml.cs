@@ -4,15 +4,15 @@ using TNRD.Modkist.ViewModels.Controls.Details.Sidebar;
 
 namespace TNRD.Modkist.Views.Controls.Details.Sidebar;
 
-public partial class ModTags : UserControl
+public partial class ModSubscription : UserControl
 {
-    public ModTags()
+    public ModSubscription()
     {
-        ViewModel = App.GetService<ModTagsViewModelFactory>().Create();
+        ViewModel = App.GetService<ModSubscriptionViewModelFactory>().Create();
         DataContext = this;
 
         InitializeComponent();
     }
 
-    public ModTagsViewModel ViewModel { get; set; }
+    public ModSubscriptionViewModel ViewModel { get; set; }
 }

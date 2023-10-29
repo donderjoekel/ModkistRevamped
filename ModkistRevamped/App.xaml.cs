@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Modio;
 using TNRD.Modkist.Factories.Controls;
+using TNRD.Modkist.Factories.ViewModels;
 using TNRD.Modkist.Models;
 using TNRD.Modkist.Services;
 using TNRD.Modkist.Settings;
@@ -68,6 +69,16 @@ public partial class App
             // Factories
             services.AddSingleton<ModCardFactory>();
             services.AddSingleton<ModDependencyFactory>();
+            services.AddSingleton<ModCardViewModelFactory>();
+            services.AddSingleton<ModDependenciesViewModelFactory>();
+            services.AddSingleton<ModDependencyViewModelFactory>();
+            services.AddSingleton<ModDescriptionViewModelFactory>();
+            services.AddSingleton<ModImagesViewModelFactory>();
+            services.AddSingleton<ModListViewModelFactory>();
+            services.AddSingleton<ModRatingsViewModelFactory>();
+            services.AddSingleton<ModStatisticsViewModelFactory>();
+            services.AddSingleton<ModSubscriptionViewModelFactory>();
+            services.AddSingleton<ModTagsViewModelFactory>();
 
             // Main window and services
             services.AddSingleton<MainWindow>();
@@ -80,6 +91,8 @@ public partial class App
             services.AddSingleton<SteamService>();
             services.AddSingleton<SelectedModService>();
             services.AddSingleton<SettingsService>();
+            services.AddSingleton<SubscriptionService>();
+            services.AddSingleton<RatingService>();
 
             // Shared models
             services.AddSingleton<LoginModel>();

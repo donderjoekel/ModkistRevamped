@@ -1,5 +1,6 @@
 ﻿using System.Windows.Controls;
 using Modio.Models;
+using TNRD.Modkist.Factories.ViewModels;
 using TNRD.Modkist.Services;
 using TNRD.Modkist.ViewModels.Controls;
 using Wpf.Ui;
@@ -8,14 +9,9 @@ namespace TNRD.Modkist.Views.Controls;
 
 public partial class ModCard : UserControl
 {
-    public ModCard(
-        ImageCachingService imageCachingService,
-        INavigationService navigationService,
-        SelectedModService selectedModService,
-        Mod mod
-    )
+    public ModCard(Mod mod)
     {
-        ViewModel = new ModCardViewModel(imageCachingService, navigationService, selectedModService, mod);
+        ViewModel = App.GetService<ModCardViewModelFactory>().Create(mod);
         DataContext = this;
 
         InitializeComponent();

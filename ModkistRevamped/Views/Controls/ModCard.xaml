@@ -28,8 +28,9 @@
                         TextTrimming="CharacterEllipsis" />
                     <ui:Button
                         HorizontalAlignment="Stretch"
-                        Appearance="Primary"
-                        Content="Subscribe"
+                        Appearance="{Binding ViewModel.ButtonAppearance}"
+                        Command="{Binding ViewModel.ToggleSubscriptionCommand}"
+                        Content="{Binding ViewModel.ButtonContent}"
                         Icon="SaveCopy24" />
                 </StackPanel>
             </ui:CardControl.Header>

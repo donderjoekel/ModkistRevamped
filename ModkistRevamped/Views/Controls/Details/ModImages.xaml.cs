@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
-using TNRD.Modkist.Services;
-using ModImagesViewModel = TNRD.Modkist.ViewModels.Controls.Details.ModImagesViewModel;
+using TNRD.Modkist.Factories.ViewModels;
+using TNRD.Modkist.ViewModels.Controls.Details;
 
 namespace TNRD.Modkist.Views.Controls.Details;
 
@@ -8,8 +8,7 @@ public partial class ModImages : UserControl
 {
     public ModImages()
     {
-        ViewModel = new ModImagesViewModel(App.GetService<ImageCachingService>(),
-            App.GetService<SelectedModService>());
+        ViewModel = App.GetService<ModImagesViewModelFactory>().Create();
         DataContext = this;
 
         InitializeComponent();

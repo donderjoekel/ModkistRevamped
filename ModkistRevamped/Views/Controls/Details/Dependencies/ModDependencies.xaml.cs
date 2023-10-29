@@ -1,8 +1,6 @@
 ﻿using System.Windows.Controls;
-using Modio;
-using TNRD.Modkist.Factories.Controls;
-using TNRD.Modkist.Services;
-using ModDependenciesViewModel = TNRD.Modkist.ViewModels.Controls.Details.Dependencies.ModDependenciesViewModel;
+using TNRD.Modkist.Factories.ViewModels;
+using TNRD.Modkist.ViewModels.Controls.Details.Dependencies;
 
 namespace TNRD.Modkist.Views.Controls.Details.Dependencies;
 
@@ -10,9 +8,7 @@ public partial class ModDependencies : UserControl
 {
     public ModDependencies()
     {
-        ViewModel = new ModDependenciesViewModel(App.GetService<SelectedModService>(),
-            App.GetService<ModsClient>(),
-            App.GetService<ModDependencyFactory>());
+        ViewModel = App.GetService<ModDependenciesViewModelFactory>().Create();
         DataContext = this;
 
         InitializeComponent();

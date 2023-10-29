@@ -4,9 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:modInfoSection="clr-namespace:TNRD.Modkist.Views.Controls.Details.Sidebar.ModInfoSection"
     xmlns:sidebar="clr-namespace:TNRD.Modkist.Views.Controls.Details.Sidebar"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    xmlns:modInfoSection="clr-namespace:TNRD.Modkist.Views.Controls.Details.Sidebar.ModInfoSection"
     d:DataContext="{d:DesignInstance sidebar:ModRatings,
                                      IsDesignTimeCreatable=False}"
     d:DesignHeight="400"
@@ -24,14 +24,20 @@
                 Grid.Column="0"
                 Margin="0,0,4,0"
                 HorizontalAlignment="Stretch"
-                Content="{Binding ViewModel.PositiveRatings}"
-                Icon="{ui:SymbolIcon ThumbLike24}" />
+                Appearance="{Binding ViewModel.UpvoteAppearance}"
+                Command="{Binding ViewModel.UpvoteCommand}"
+                Content="{Binding ViewModel.Upvotes}"
+                Icon="{ui:SymbolIcon ThumbLike24}"
+                IsEnabled="{Binding ViewModel.CanVote}" />
             <ui:Button
                 Grid.Column="1"
                 Margin="4,0,0,0"
                 HorizontalAlignment="Stretch"
-                Content="{Binding ViewModel.NegativeRatings}"
-                Icon="{ui:SymbolIcon ThumbDislike24}" />
+                Appearance="{Binding ViewModel.DownvoteAppearance}"
+                Command="{Binding ViewModel.DownvoteCommand}"
+                Content="{Binding ViewModel.Downvotes}"
+                Icon="{ui:SymbolIcon ThumbDislike24}"
+                IsEnabled="{Binding ViewModel.CanVote}" />
         </Grid>
     </modInfoSection:ModInfoSection>
 </UserControl>

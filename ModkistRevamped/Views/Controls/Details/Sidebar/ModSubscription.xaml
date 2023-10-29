@@ -1,22 +1,22 @@
 ﻿<UserControl
-    x:Class="TNRD.Modkist.Views.Controls.Details.Sidebar.ModSideBar"
+    x:Class="TNRD.Modkist.Views.Controls.Details.Sidebar.ModSubscription"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:sidebar="clr-namespace:TNRD.Modkist.Views.Controls.Details.Sidebar"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    d:DataContext="{d:DesignInstance sidebar:ModSideBar,
+    d:DataContext="{d:DesignInstance sidebar:ModSubscription,
                                      IsDesignTimeCreatable=False}"
-    d:DesignHeight="900"
-    d:DesignWidth="1600"
+    d:DesignHeight="300"
+    d:DesignWidth="300"
     ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
     ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d">
-    <StackPanel Margin="8,8,0,8" Orientation="Vertical">
-        <sidebar:ModSubscription />
-        <sidebar:ModRatings />
-        <sidebar:ModStatistics />
-        <sidebar:ModTags />
-    </StackPanel>
+    <ui:Button
+        Margin="8"
+        HorizontalAlignment="Stretch"
+        Appearance="{Binding ViewModel.Appearance}"
+        Command="{Binding ViewModel.ToggleSubscriptionCommand}"
+        Content="{Binding ViewModel.Content}" />
 </UserControl>

@@ -1,27 +1,15 @@
 ﻿using System.Windows.Controls;
-using Modio;
 using Modio.Models;
-using TNRD.Modkist.Services;
-using Wpf.Ui;
-using ModDependencyViewModel = TNRD.Modkist.ViewModels.Controls.Details.Dependencies.ModDependencyViewModel;
+using TNRD.Modkist.Factories.ViewModels;
+using TNRD.Modkist.ViewModels.Controls.Details.Dependencies;
 
 namespace TNRD.Modkist.Views.Controls.Details.Dependencies;
 
 public partial class ModDependency : UserControl
 {
-    public ModDependency(
-        ImageCachingService imageCachingService,
-        INavigationService navigationService,
-        SelectedModService selectedModService,
-        ModsClient modsClient,
-        Dependency dependency
-    )
+    public ModDependency(Dependency dependency)
     {
-        ViewModel = new ModDependencyViewModel(imageCachingService,
-            navigationService,
-            selectedModService,
-            modsClient,
-            dependency);
+        ViewModel = App.GetService<ModDependencyViewModelFactory>().Create(dependency);
         DataContext = this;
 
         InitializeComponent();

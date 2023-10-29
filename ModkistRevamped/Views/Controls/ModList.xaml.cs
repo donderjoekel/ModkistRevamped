@@ -1,6 +1,5 @@
 ﻿using System.Windows.Controls;
-using Modio;
-using TNRD.Modkist.Factories.Controls;
+using TNRD.Modkist.Factories.ViewModels;
 using TNRD.Modkist.Models;
 using TNRD.Modkist.ViewModels.Controls;
 
@@ -24,7 +23,7 @@ public partial class ModList : UserControl
 
     public ModList()
     {
-        ViewModel = new ModListViewModel(App.GetService<ModsClient>(), App.GetService<ModCardFactory>());
+        ViewModel = App.GetService<ModListViewModelFactory>().Create();
         DataContext = this;
 
         InitializeComponent();

@@ -2,9 +2,9 @@
 
 namespace TNRD.Modkist.Factories.ViewModels;
 
-public class ModListViewModelFactory : FactoryBase<ModListViewModel>
+public class ModCardViewModelFactory : FactoryBase<ModCardViewModel>
 {
-    public ModListViewModelFactory(IServiceProvider provider)
+    public ModCardViewModelFactory(IServiceProvider provider)
         : base(provider)
     {
     }

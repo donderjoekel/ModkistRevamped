@@ -9,22 +9,35 @@ public class VerifyLoginViewModel : ObservableObject, INavigationAware
 {
     private readonly SettingsService settingsService;
     private readonly INavigationService navigationService;
+    private readonly SubscriptionService subscriptionService;
+    private readonly RatingService ratingService;
 
-    public VerifyLoginViewModel(SettingsService settingsService, INavigationService navigationService)
+    public VerifyLoginViewModel(
+        SettingsService settingsService,
+        INavigationService navigationService,
+        SubscriptionService subscriptionService,
+        RatingService ratingService
+    )
     {
         this.settingsService = settingsService;
         this.navigationService = navigationService;
+        this.subscriptionService = subscriptionService;
+        this.ratingService = ratingService;
     }
 
     async void INavigationAware.OnNavigatedTo()
     {
-        Type pageToNavigateTo = settingsService.HasValidAccessToken()
-            ? typeof(BrowsePluginsPage)
-            : typeof(RequestLoginCodePage);
-
-        await Task.Delay(Random.Shared.Next(1000, 1500)); // Artificial delay to make it feel better
-
-        navigationService.Navigate(pageToNavigateTo);
+        if (settingsService.HasValidAccessToken())
+        {
+            await ratingService.LoadAuthenticatedUserData();
+            await subscriptionService.LoadAuthenticatedUserData();
+            navigationService.Navigate(typeof(BrowsePluginsPage));
+        }
+        else
+        {
+            await Task.Delay(Random.Shared.Next(1000, 1500)); // Artificial delay to make it feel better
+            navigationService.Navigate(typeof(RequestLoginCodePage));
+        }
     }
 
     void INavigationAware.OnNavigatedFrom()
