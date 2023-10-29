@@ -2,6 +2,7 @@
 using Modio;
 using TNRD.Modkist.Helpers;
 using TNRD.Modkist.Models;
+using TNRD.Modkist.Services;
 using TNRD.Modkist.Settings;
 using TNRD.Modkist.Views.Pages;
 using Wpf.Ui;
@@ -14,6 +15,7 @@ public partial class RequestLoginCodeViewModel : ObservableObject
     private readonly AuthClient authClient;
     private readonly LoginModel loginModel;
     private readonly IOptions<ModioSettings> modioSettings;
+    private readonly SettingsService settingsService;
 
     [ObservableProperty] private string email = null!;
     [ObservableProperty] private bool enterCodeButtonEnabled;
@@ -22,13 +24,15 @@ public partial class RequestLoginCodeViewModel : ObservableObject
         INavigationService navigationService,
         AuthClient authClient,
         LoginModel loginModel,
-        IOptions<ModioSettings> modioSettings
+        IOptions<ModioSettings> modioSettings,
+        SettingsService settingsService
     )
     {
         this.navigationService = navigationService;
         this.authClient = authClient;
         this.loginModel = loginModel;
         this.modioSettings = modioSettings;
+        this.settingsService = settingsService;
     }
 
     [RelayCommand]
@@ -42,5 +46,12 @@ public partial class RequestLoginCodeViewModel : ObservableObject
     {
         EnterCodeButtonEnabled = RegexHelper.IsValidEmail(value);
         loginModel.Email = value;
+    }
+
+    [RelayCommand]
+    private void SkipLogin()
+    {
+        settingsService.SkippedLogin = true;
+        navigationService.Navigate(typeof(BrowsePluginsPage));
     }
 }

@@ -27,10 +27,18 @@ public class VerifyLoginViewModel : ObservableObject, INavigationAware
 
     async void INavigationAware.OnNavigatedTo()
     {
-        if (settingsService.HasValidAccessToken())
+        if (settingsService.HasValidAccessToken() || settingsService.SkippedLogin)
         {
-            await ratingService.LoadAuthenticatedUserData();
-            await subscriptionService.LoadAuthenticatedUserData();
+            if (settingsService.HasValidAccessToken())
+            {
+                await ratingService.LoadAuthenticatedUserData();
+                await subscriptionService.LoadAuthenticatedUserData();
+            }
+            else
+            {
+                await Task.Delay(Random.Shared.Next(1000, 1500)); // Artificial delay to make it feel better    
+            }
+
             navigationService.Navigate(typeof(BrowsePluginsPage));
         }
         else

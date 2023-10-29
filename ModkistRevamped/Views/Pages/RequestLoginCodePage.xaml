@@ -32,6 +32,10 @@
             Command="{Binding ViewModel.EmailCodeCommand}"
             Content="Request code"
             IsEnabled="{Binding ViewModel.EnterCodeButtonEnabled}" />
-        <Label HorizontalAlignment="Center" Content="Skip login" />
+        <Label HorizontalAlignment="Center" Content="Skip login">
+            <Label.InputBindings>
+                <MouseBinding Command="{Binding ViewModel.SkipLoginCommand}" MouseAction="LeftClick" />
+            </Label.InputBindings>
+        </Label>
     </StackPanel>
 </Page>

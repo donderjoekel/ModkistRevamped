@@ -12,6 +12,7 @@ public partial class SettingsService : ObservableObject
     [ObservableProperty] private string zeepkistDirectory = string.Empty;
     [ObservableProperty] private ApplicationTheme theme = ApplicationTheme.Unknown;
     [ObservableProperty] private AccessToken? accessToken;
+    [ObservableProperty] private bool skippedLogin;
 
     public SettingsService()
     {
@@ -39,6 +40,11 @@ public partial class SettingsService : ObservableObject
     }
 
     partial void OnAccessTokenChanged(AccessToken? value)
+    {
+        Save();
+    }
+
+    partial void OnSkippedLoginChanged(bool value)
     {
         Save();
     }
