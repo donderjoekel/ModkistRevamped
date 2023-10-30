@@ -2,6 +2,7 @@
 using Modio;
 using Modio.Models;
 using TNRD.Modkist.Services;
+using TNRD.Modkist.Services.Subscription;
 using Wpf.Ui.Controls;
 
 namespace TNRD.Modkist.Jobs;
@@ -14,6 +15,7 @@ public class AddModJob : JobBase
     private readonly DownloadService downloadService;
     private readonly SnackbarQueueService snackbarQueueService;
     private readonly ILogger<AddModJob> logger;
+    private readonly ISubscriptionService subscriptionService;
 
     public AddModJob(
         uint modId,
@@ -21,7 +23,8 @@ public class AddModJob : JobBase
         InstallationService installationService,
         DownloadService downloadService,
         SnackbarQueueService snackbarQueueService,
-        ILogger<AddModJob> logger
+        ILogger<AddModJob> logger,
+        ISubscriptionService subscriptionService
     )
     {
         this.modId = modId;
@@ -30,12 +33,16 @@ public class AddModJob : JobBase
         this.downloadService = downloadService;
         this.snackbarQueueService = snackbarQueueService;
         this.logger = logger;
+        this.subscriptionService = subscriptionService;
     }
 
     public override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         try
         {
+            if (subscriptionService.IsSubscribed(modId))
+                return; // Early out if already subscribed
+
             Mod mod = await modsClient[modId].Get();
 
             string? downloadedFilePath = await downloadService.DownloadMod(mod);

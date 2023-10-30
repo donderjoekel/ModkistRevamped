@@ -2,6 +2,7 @@
 using Modio;
 using Modio.Models;
 using TNRD.Modkist.Services;
+using TNRD.Modkist.Services.Subscription;
 using Wpf.Ui.Controls;
 
 namespace TNRD.Modkist.Jobs;
@@ -13,13 +14,15 @@ public class RemoveModJob : JobBase
     private readonly InstallationService installationService;
     private readonly SnackbarQueueService snackbarQueueService;
     private readonly ILogger<RemoveModJob> logger;
+    private readonly ISubscriptionService subscriptionService;
 
     public RemoveModJob(
         uint modId,
         ModsClient modsClient,
         InstallationService installationService,
         SnackbarQueueService snackbarQueueService,
-        ILogger<RemoveModJob> logger
+        ILogger<RemoveModJob> logger,
+        ISubscriptionService subscriptionService
     )
     {
         this.modId = modId;
@@ -27,6 +30,7 @@ public class RemoveModJob : JobBase
         this.installationService = installationService;
         this.snackbarQueueService = snackbarQueueService;
         this.logger = logger;
+        this.subscriptionService = subscriptionService;
     }
 
     public override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -46,6 +50,9 @@ public class RemoveModJob : JobBase
     {
         try
         {
+            if (!subscriptionService.IsSubscribed(modId))
+                return false; // Early out if not subscribed
+
             Mod mod = await modsClient[modId].Get();
             installationService.UninstallMod(mod);
 

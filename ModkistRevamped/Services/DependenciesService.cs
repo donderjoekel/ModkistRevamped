@@ -100,4 +100,9 @@ public class DependenciesService
             return dependencyIds.Count > 0;
         return false;
     }
+
+    public IReadOnlyList<uint> GetAllDependencies()
+    {
+        return dependencyIdToModIds.Keys.ToList();
+    }
 }

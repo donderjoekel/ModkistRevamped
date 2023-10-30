@@ -11,23 +11,36 @@ public class VerifyModsJob : JobBase
     private readonly InstallationService installationService;
     private readonly ModManagerHostedService modManagerHostedService;
     private readonly ISubscriptionService subscriptionService;
+    private readonly DependenciesService dependenciesService;
 
     public VerifyModsJob(
         InstallationService installationService,
         ModManagerHostedService modManagerHostedService,
-        ISubscriptionService subscriptionService
+        ISubscriptionService subscriptionService,
+        DependenciesService dependenciesService
     )
     {
         this.installationService = installationService;
         this.modManagerHostedService = modManagerHostedService;
         this.subscriptionService = subscriptionService;
+        this.dependenciesService = dependenciesService;
     }
 
     public override Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        IEnumerable<Mod> subscribedMods = subscriptionService.GetSubscribedMods().ToList();
+        List<Mod> subscribedMods = subscriptionService.GetSubscribedMods().ToList();
         List<InstalledModModel> installedMods = installationService.GetInstalledMods();
+        IReadOnlyList<uint> dependencies = dependenciesService.GetAllDependencies();
 
+        VerifySubscribedMods(subscribedMods, installedMods);
+        VerifyInstalledMods(installedMods, subscribedMods);
+        VerifyDependencies(dependencies, subscribedMods);
+
+        return Task.CompletedTask;
+    }
+
+    private void VerifySubscribedMods(List<Mod> subscribedMods, IReadOnlyCollection<InstalledModModel> installedMods)
+    {
         foreach (Mod mod in subscribedMods)
         {
             InstalledModModel? installedMod = installedMods.FirstOrDefault(x => x.ModId == mod.Id);
@@ -45,7 +58,10 @@ public class VerifyModsJob : JobBase
                 modManagerHostedService.EnqueueUpdateModJob(mod.Id);
             }
         }
+    }
 
+    private void VerifyInstalledMods(List<InstalledModModel> installedMods, IReadOnlyCollection<Mod> subscribedMods)
+    {
         foreach (InstalledModModel installedMod in installedMods)
         {
             bool isAvailableOnline = subscribedMods.Any(x => x.Id == installedMod.ModId);
@@ -55,7 +71,16 @@ public class VerifyModsJob : JobBase
                 modManagerHostedService.EnqueueRemoveModJob(installedMod.ModId);
             }
         }
+    }
 
-        return Task.CompletedTask;
+    private void VerifyDependencies(IEnumerable<uint> dependencies, IReadOnlyCollection<Mod> subscribedMods)
+    {
+        foreach (uint dependency in dependencies)
+        {
+            if (subscribedMods.All(x => x.Id != dependency))
+            {
+                modManagerHostedService.EnqueueAddModJob(dependency);
+            }
+        }
     }
 }
