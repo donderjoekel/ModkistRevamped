@@ -16,18 +16,8 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<object> _menuItems = new()
     {
-        new NavigationViewItem()
-        {
-            Content = "Mods",
-            Icon = new SymbolIcon { Symbol = SymbolRegular.AppsAddIn24 },
-            TargetPageType = typeof(BrowsePluginsPage)
-        },
-        new NavigationViewItem()
-        {
-            Content = "Blueprints",
-            Icon = new SymbolIcon { Symbol = SymbolRegular.Cube24 },
-            TargetPageType = typeof(BrowseBlueprintsPage)
-        },
+        new NavigationViewItem("Mods", SymbolRegular.AppsAddIn24, typeof(BrowsePluginsPage)),
+        new NavigationViewItem("Blueprints", SymbolRegular.Cube24, typeof(BrowseBlueprintsPage)),
         // new NavigationViewItem()
         // {
         //     Content = "Guides",
@@ -35,25 +25,13 @@ public partial class MainWindowViewModel : ObservableObject
         //     TargetPageType = typeof(BrowseGuidesPage)
         // },
         new NavigationViewItemSeparator(),
-        // new NavigationViewItem()
-        // {
-        //     Content = "Installed Mods",
-        //     Icon = new SymbolIcon { Symbol = SymbolRegular.Apps24 },
-        //     TargetPageType = typeof(InstalledModsPage)
-        // }
-        new NavigationViewItemSeparator(),
         new NavigationViewItem("Profiles", SymbolRegular.Person24, typeof(ProfilesPage))
     };
 
     [ObservableProperty]
     private ObservableCollection<object> _footerMenuItems = new()
     {
-        new NavigationViewItem()
-        {
-            Content = "Settings",
-            Icon = new SymbolIcon { Symbol = SymbolRegular.Settings24 },
-            TargetPageType = typeof(SettingsPage)
-        }
+        new NavigationViewItem("Settings", SymbolRegular.Settings24, typeof(SettingsPage))
     };
 
     [ObservableProperty]
