@@ -73,22 +73,12 @@ public partial class ModCardViewModel : ObservableObject
         if (subscriptionService.IsSubscribed(mod))
         {
             await subscriptionService.Unsubscribe(mod);
-
-            snackbarQueueService.Enqueue("Unsubscribe",
-                $"You have been unsubscribed from '{mod.Name}'!",
-                ControlAppearance.Secondary,
-                null,
-                TimeSpan.FromSeconds(2.5d));
+            snackbarQueueService.Enqueue("Unsubscribe", $"You have been unsubscribed from '{mod.Name}'!");
         }
         else
         {
             await subscriptionService.Subscribe(mod);
-
-            snackbarQueueService.Enqueue("Subscribe",
-                $"You have been subscribed to '{mod.Name}'!",
-                ControlAppearance.Secondary,
-                null,
-                TimeSpan.FromSeconds(2.5d));
+            snackbarQueueService.Enqueue("Subscribe", $"You have been subscribed to '{mod.Name}'!");
         }
 
         UpdateView();

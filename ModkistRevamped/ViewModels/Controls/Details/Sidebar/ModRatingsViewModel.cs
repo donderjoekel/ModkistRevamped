@@ -41,8 +41,7 @@ public partial class ModRatingsViewModel : ObservableObject
             snackbarQueueService.Enqueue("Downvote",
                 "Your downvote has been removed!",
                 ControlAppearance.Secondary,
-                new SymbolIcon(SymbolRegular.ThumbLikeDislike24),
-                TimeSpan.FromSeconds(2.5d));
+                new SymbolIcon(SymbolRegular.ThumbLikeDislike24));
         }
         else
         {
@@ -51,8 +50,7 @@ public partial class ModRatingsViewModel : ObservableObject
             snackbarQueueService.Enqueue("Downvote",
                 "Your downvote has been submitted!",
                 ControlAppearance.Secondary,
-                new SymbolIcon(SymbolRegular.ThumbDislike24),
-                TimeSpan.FromSeconds(2.5d));
+                new SymbolIcon(SymbolRegular.ThumbDislike24));
         }
 
         UpdateButtonAppearance();
@@ -68,8 +66,7 @@ public partial class ModRatingsViewModel : ObservableObject
             snackbarQueueService.Enqueue("Upvote",
                 "Your upvote has been removed!",
                 ControlAppearance.Secondary,
-                new SymbolIcon(SymbolRegular.ThumbLikeDislike24),
-                TimeSpan.FromSeconds(2.5d));
+                new SymbolIcon(SymbolRegular.ThumbLikeDislike24));
         }
         else
         {
@@ -78,8 +75,7 @@ public partial class ModRatingsViewModel : ObservableObject
             snackbarQueueService.Enqueue("Upvote",
                 "Your upvote has been submitted!",
                 ControlAppearance.Secondary,
-                new SymbolIcon(SymbolRegular.ThumbLike24),
-                TimeSpan.FromSeconds(2.5d));
+                new SymbolIcon(SymbolRegular.ThumbLike24));
         }
 
         UpdateButtonAppearance();

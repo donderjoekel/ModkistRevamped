@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Net.Http;
+using Microsoft.Extensions.Logging;
 using Modio;
 using Modio.Models;
 using File = System.IO.File;
@@ -10,24 +11,32 @@ public class DownloadService
 {
     private readonly ModsClient modsClient;
     private readonly HttpClient httpClient;
+    private readonly ILogger<DownloadService> logger;
 
-    public DownloadService(ModsClient modsClient, HttpClient httpClient)
+    public DownloadService(ModsClient modsClient, HttpClient httpClient, ILogger<DownloadService> logger)
     {
         this.modsClient = modsClient;
         this.httpClient = httpClient;
+        this.logger = logger;
     }
 
     public async Task<string?> DownloadMod(Mod mod)
     {
+        if (mod.Modfile == null)
+        {
+            logger.LogWarning("Mod {Id} has no modfile", mod.Id);
+            return null;
+        }
+
         if (mod.Modfile?.Download == null)
         {
-            // TODO: Log error
+            logger.LogWarning("Mod {Id} has no download", mod.Id);
             return null;
         }
 
         if (mod.Modfile.Download.BinaryUrl == null)
         {
-            // TODO: Log error
+            logger.LogWarning("Mod {Id} has no binary url", mod.Id);
             return null;
         }
 
@@ -44,7 +53,7 @@ public class DownloadService
         }
         catch (Exception e)
         {
-            // TODO: Log error
+            logger.LogError(e, "Unable to get file from {Url}", binaryUrl);
             return null;
         }
 
@@ -54,7 +63,7 @@ public class DownloadService
         }
         catch (Exception e)
         {
-            // TODO: Log error
+            logger.LogError(e, "Failed to ensure status code for {Url}", binaryUrl);
             return null;
         }
 
@@ -66,7 +75,7 @@ public class DownloadService
         }
         catch (Exception e)
         {
-            // TODO: Log error
+            logger.LogError(e, "Failed to read content as byte array for {Url}", binaryUrl);
             return null;
         }
 
@@ -78,12 +87,11 @@ public class DownloadService
         }
         catch (Exception e)
         {
-            // TODO: Log error
+            logger.LogError(e, "Failed to create temp directory");
             return null;
         }
 
         string tempFilename = Path.GetRandomFileName();
-
         string tempPath = Path.Combine(tempDirectory, tempFilename);
 
         try
@@ -92,7 +100,7 @@ public class DownloadService
         }
         catch (Exception e)
         {
-            // TODO: Log error
+            logger.LogError(e, "Failed to write file to {Path}", tempPath);
             return null;
         }
 

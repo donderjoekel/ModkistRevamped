@@ -35,8 +35,7 @@ public class RemoveModJob : JobBase
         snackbarQueueService.Enqueue("Remove",
             "Unlisted mod has been removed!",
             ControlAppearance.Secondary,
-            new SymbolIcon(SymbolRegular.Delete24),
-            TimeSpan.FromSeconds(2.5d));
+            new SymbolIcon(SymbolRegular.Delete24));
     }
 
     private async Task<bool> RegularUninstall()
@@ -49,8 +48,7 @@ public class RemoveModJob : JobBase
             snackbarQueueService.Enqueue("Remove",
                 $"'{mod.Name}' has been removed!",
                 ControlAppearance.Secondary,
-                new SymbolIcon(SymbolRegular.Delete24),
-                TimeSpan.FromSeconds(2.5d));
+                new SymbolIcon(SymbolRegular.Delete24));
 
             return true;
         }

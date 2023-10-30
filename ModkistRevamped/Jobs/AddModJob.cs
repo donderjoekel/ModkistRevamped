@@ -36,7 +36,11 @@ public class AddModJob : JobBase
 
         if (string.IsNullOrEmpty(downloadedFilePath))
         {
-            // TODO: Handle error
+            snackbarQueueService.Enqueue("Install",
+                $"Unable to install '{mod.Name}'",
+                ControlAppearance.Caution,
+                new SymbolIcon(SymbolRegular.Warning24));
+
             return;
         }
 
@@ -45,7 +49,6 @@ public class AddModJob : JobBase
         snackbarQueueService.Enqueue("Install",
             $"'{mod.Name}' has been installed!",
             ControlAppearance.Secondary,
-            new SymbolIcon(SymbolRegular.Checkmark24),
-            TimeSpan.FromSeconds(2.5d));
+            new SymbolIcon(SymbolRegular.Checkmark24));
     }
 }

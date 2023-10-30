@@ -31,22 +31,25 @@ public class UpdateModJob : JobBase
     public override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         Mod mod = await modsClient[modId].Get();
-        installationService.UninstallMod(mod);
 
         string? downloadedFilePath = await downloadService.DownloadMod(mod);
 
         if (string.IsNullOrEmpty(downloadedFilePath))
         {
-            // TODO: Handle error
+            snackbarQueueService.Enqueue("Update",
+                $"Unable to update '{mod.Name}'",
+                ControlAppearance.Caution,
+                new SymbolIcon(SymbolRegular.Warning24));
+
             return;
         }
 
+        installationService.UninstallMod(mod);
         installationService.InstallMod(mod, downloadedFilePath);
 
         snackbarQueueService.Enqueue("Update",
             $"'{mod.Name}' has been updated!",
             ControlAppearance.Secondary,
-            new SymbolIcon(SymbolRegular.Checkmark24),
-            TimeSpan.FromSeconds(2.5d));
+            new SymbolIcon(SymbolRegular.Checkmark24));
     }
 }
