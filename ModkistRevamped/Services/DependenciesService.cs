@@ -67,14 +67,22 @@ public class DependenciesService
 
     private async void OnSubscriptionAdded(uint modId)
     {
-        IReadOnlyList<Dependency> dependencies = await modsClient[modId].Dependencies.Get();
-        foreach (Dependency dependency in dependencies)
+        try
         {
-            dependencyIdToModIds.TryAdd(dependency.ModId, new HashSet<uint>());
-            if (dependencyIdToModIds[dependency.ModId].Add(modId))
+            IReadOnlyList<Dependency> dependencies = await modsClient[modId].Dependencies.Get();
+            foreach (Dependency dependency in dependencies)
             {
-                DependencyAdded?.Invoke(dependency.ModId);
+                dependencyIdToModIds.TryAdd(dependency.ModId, new HashSet<uint>());
+                if (dependencyIdToModIds[dependency.ModId].Add(modId))
+                {
+                    DependencyAdded?.Invoke(dependency.ModId);
+                }
             }
+        }
+        catch (RateLimitExceededException)
+        {
+            snackbarQueueService.EnqueueRateLimitMessage();
+            logger.LogWarning("Being rate limited!");
         }
     }
 
