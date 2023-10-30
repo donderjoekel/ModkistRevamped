@@ -97,6 +97,8 @@ public partial class App
             services.AddSingleton<ModTagsViewModelFactory>();
             services.AddSingleton<ProfileListViewModelFactory>();
             services.AddSingleton<ProfileListItemViewModelFactory>();
+            services.AddSingleton<SideloadListViewModelFactory>();
+            services.AddSingleton<SideloadListItemViewModelFactory>();
 
             // Main window and services
             services.AddSingleton<MainWindow>();
@@ -114,6 +116,7 @@ public partial class App
             services.AddSingleton<DownloadService>();
             services.AddSingleton<SnackbarQueueService>();
             services.AddSingleton<DependenciesService>();
+            services.AddSingleton<SideloadService>();
 
             services.AddSingleton<RemoteRatingService>();
             services.AddSingleton<StubRatingService>();
@@ -157,6 +160,7 @@ public partial class App
             services.AddSingleton<BrowseBlueprintsPage>();
             services.AddTransient<ModDetailsPage>().AddTransient<ModDetailsViewModel>();
             services.AddSingleton<ProfilesPage>();
+            services.AddSingleton<SideloadPage>();
         }).Build();
 
     /// <summary>

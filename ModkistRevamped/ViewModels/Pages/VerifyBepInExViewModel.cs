@@ -15,6 +15,13 @@ public class VerifyBepInExViewModel : ObservableObject, INavigationAware
     private const string BEPINEX_URL =
         "https://github.com/BepInEx/BepInEx/releases/download/v5.4.22/BepInEx_x64_5.4.22.0.zip";
 
+    private static readonly string[] excludedDirectories =
+    {
+        "Mods",
+        "Blueprints",
+        "Sideloaded"
+    };
+
     private readonly SettingsService settingsService;
     private readonly INavigationService navigationService;
     private readonly HttpClient httpClient;
@@ -98,9 +105,7 @@ public class VerifyBepInExViewModel : ObservableObject, INavigationAware
         {
             string fileName = Path.GetFileName(directory);
 
-            if (string.Equals(fileName, "Mods", StringComparison.InvariantCultureIgnoreCase))
-                continue;
-            if (string.Equals(fileName, "Blueprints", StringComparison.InvariantCultureIgnoreCase))
+            if (excludedDirectories.Any(x => string.Equals(x, fileName, StringComparison.InvariantCultureIgnoreCase)))
                 continue;
 
             return true;
@@ -122,9 +127,7 @@ public class VerifyBepInExViewModel : ObservableObject, INavigationAware
         {
             string fileName = Path.GetFileName(directory);
 
-            if (string.Equals(fileName, "Mods", StringComparison.InvariantCultureIgnoreCase))
-                continue;
-            if (string.Equals(fileName, "Blueprints", StringComparison.InvariantCultureIgnoreCase))
+            if (excludedDirectories.Any(x => string.Equals(x, fileName, StringComparison.InvariantCultureIgnoreCase)))
                 continue;
 
             string uniqueDirectoryName = GetUniqueDirectoryName(backupFolder, fileName);

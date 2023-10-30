@@ -16,14 +16,10 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<object> _menuItems = new()
     {
-        new NavigationViewItem("Mods", SymbolRegular.AppsAddIn24, typeof(BrowsePluginsPage)),
-        new NavigationViewItem("Blueprints", SymbolRegular.Cube24, typeof(BrowseBlueprintsPage)),
-        // new NavigationViewItem()
-        // {
-        //     Content = "Guides",
-        //     Icon = new SymbolIcon { Symbol = SymbolRegular.Book24 },
-        //     TargetPageType = typeof(BrowseGuidesPage)
-        // },
+        new NavigationViewItem("Mods", SymbolRegular.WrenchScrewdriver24, typeof(BrowsePluginsPage)),
+        new NavigationViewItem("Blueprints", SymbolRegular.PuzzlePiece24, typeof(BrowseBlueprintsPage)),
+        new NavigationViewItemSeparator(),
+        new NavigationViewItem("Sideload", SymbolRegular.Toolbox24, typeof(SideloadPage)),
         new NavigationViewItemSeparator(),
         new NavigationViewItem("Profiles", SymbolRegular.Person24, typeof(ProfilesPage))
     };
