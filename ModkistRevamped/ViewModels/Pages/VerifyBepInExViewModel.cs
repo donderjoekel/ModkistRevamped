@@ -54,7 +54,7 @@ public class VerifyBepInExViewModel : ObservableObject, INavigationAware
 
         if (!HasBepInEx()) // Validate
         {
-            await contentDialogService.ShowAlertAsync("Uh-oh",
+            await contentDialogService.ShowAlertAsync("Uh oh",
                 "Failed to install/update BepInEx, please contact the developer of Modkist!",
                 "OK");
 
@@ -89,7 +89,7 @@ public class VerifyBepInExViewModel : ObservableObject, INavigationAware
         }
         catch (Exception e)
         {
-            await contentDialogService.ShowAlertAsync("Uh-oh",
+            await contentDialogService.ShowAlertAsync("Uh oh",
                 "Failed to download BepInEx, please try again later!",
                 "OK");
 
@@ -107,7 +107,7 @@ public class VerifyBepInExViewModel : ObservableObject, INavigationAware
         }
         catch (Exception e)
         {
-            await contentDialogService.ShowAlertAsync("Uh-oh",
+            await contentDialogService.ShowAlertAsync("Uh oh",
                 "Failed to download BepInEx, please try again later!",
                 "OK");
 

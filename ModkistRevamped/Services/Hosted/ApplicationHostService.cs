@@ -3,10 +3,12 @@
 // Copyright (C) Leszek Pomianowski and WPF UI Contributors.
 // All Rights Reserved.
 
+using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TNRD.Modkist.Views.Pages;
 using TNRD.Modkist.Views.Windows;
+using Wpf.Ui;
 
 namespace TNRD.Modkist.Services.Hosted;
 
@@ -55,10 +57,23 @@ public class ApplicationHostService : IHostedService
         }
     }
 
-    private void OnNavigationWindowLoaded(object sender, RoutedEventArgs e)
+    private async void OnNavigationWindowLoaded(object sender, RoutedEventArgs e)
     {
         if (sender is not MainWindow navigationWindow)
         {
+            return;
+        }
+
+        Process[] processes = Process.GetProcessesByName("Zeepkist");
+        if (processes.Length > 0)
+        {
+            IContentDialogService contentDialogService =
+                _serviceProvider.GetRequiredService<IContentDialogService>();
+            await contentDialogService.ShowAlertAsync("Uh oh",
+                "Please close Zeepkist before you start Modkist",
+                "OK");
+
+            Application.Current.Shutdown();
             return;
         }
 
