@@ -40,6 +40,16 @@ public class VerifyBepInExViewModel : ObservableObject, INavigationAware
     {
         if (HasBepInEx())
         {
+            if (HasExistingMods())
+            {
+                await contentDialogService.ShowAlertAsync("Existing mods found",
+                    "It seems you have existing mods installed from a previous version of Modkist, moving them to BepInEx/plugins_backup.\n" +
+                    "If you want to add them again, use the side-load function!",
+                    "OK");
+
+                MoveExistingModsToBackupFolder();
+            }
+
             await Task.Delay(Random.Shared.Next(1000, 1500)); // Artificial delay to make it feel better
             navigationService.Navigate(typeof(VerifyLoginPage));
             return;
@@ -77,6 +87,70 @@ public class VerifyBepInExViewModel : ObservableObject, INavigationAware
         }
 
         return false;
+    }
+
+    private bool HasExistingMods()
+    {
+        string pluginsPath = Path.Combine(settingsService.ZeepkistDirectory, "BepInEx", "plugins");
+        string[] directories = Directory.GetDirectories(pluginsPath, "*", SearchOption.TopDirectoryOnly);
+
+        foreach (string directory in directories)
+        {
+            string fileName = Path.GetFileName(directory);
+
+            if (string.Equals(fileName, "Mods", StringComparison.InvariantCultureIgnoreCase))
+                continue;
+            if (string.Equals(fileName, "Blueprints", StringComparison.InvariantCultureIgnoreCase))
+                continue;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private void MoveExistingModsToBackupFolder()
+    {
+        string backupFolder = Path.Combine(settingsService.ZeepkistDirectory, "BepInEx", "plugins_backup");
+        if (!Directory.Exists(backupFolder))
+            Directory.CreateDirectory(backupFolder);
+
+        string pluginsPath = Path.Combine(settingsService.ZeepkistDirectory, "BepInEx", "plugins");
+        string[] directories = Directory.GetDirectories(pluginsPath, "*", SearchOption.TopDirectoryOnly);
+
+        foreach (string directory in directories)
+        {
+            string fileName = Path.GetFileName(directory);
+
+            if (string.Equals(fileName, "Mods", StringComparison.InvariantCultureIgnoreCase))
+                continue;
+            if (string.Equals(fileName, "Blueprints", StringComparison.InvariantCultureIgnoreCase))
+                continue;
+
+            string uniqueDirectoryName = GetUniqueDirectoryName(backupFolder, fileName);
+            string newDirectory = Path.Combine(backupFolder, uniqueDirectoryName);
+            Directory.Move(directory, newDirectory);
+        }
+    }
+
+    private string GetUniqueDirectoryName(string directory, string directoryName)
+    {
+        string combined = Path.Combine(directory, directoryName);
+        if (!Directory.Exists(combined))
+            return directoryName;
+
+        int counter = 1;
+
+        while (true)
+        {
+            string newDirectoryName = $"{directoryName} ({counter})";
+            string newCombined = Path.Combine(directory, newDirectoryName);
+
+            if (!Directory.Exists(newCombined))
+                return newDirectoryName;
+
+            counter++;
+        }
     }
 
     private async Task DownloadZip(string zipPath)
