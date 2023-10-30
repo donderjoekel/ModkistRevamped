@@ -1,6 +1,5 @@
 ﻿using TNRD.Modkist.Services;
 using TNRD.Modkist.Services.Rating;
-using Wpf.Ui;
 using Wpf.Ui.Controls;
 
 namespace TNRD.Modkist.ViewModels.Controls.Details.Sidebar;
@@ -9,17 +8,17 @@ public partial class ModRatingsViewModel : ObservableObject
 {
     private readonly SelectedModService selectedModService;
     private readonly IRatingService ratingService;
-    private readonly ISnackbarService snackbarService;
+    private readonly SnackbarQueueService snackbarQueueService;
 
     public ModRatingsViewModel(
         SelectedModService selectedModService,
         IRatingService ratingService,
-        ISnackbarService snackbarService
+        SnackbarQueueService snackbarQueueService
     )
     {
         this.selectedModService = selectedModService;
         this.ratingService = ratingService;
-        this.snackbarService = snackbarService;
+        this.snackbarQueueService = snackbarQueueService;
 
         UpdateButtonAppearance();
     }
@@ -39,20 +38,20 @@ public partial class ModRatingsViewModel : ObservableObject
         {
             await ratingService.RemoveRating(selectedModService.SelectedMod!);
 
-            snackbarService.Show("Downvote",
+            snackbarQueueService.Enqueue("Downvote",
                 "Your downvote has been removed!",
                 ControlAppearance.Secondary,
-                null,
+                new SymbolIcon(SymbolRegular.ThumbLikeDislike24),
                 TimeSpan.FromSeconds(2.5d));
         }
         else
         {
             await ratingService.Downvote(selectedModService.SelectedMod!);
 
-            snackbarService.Show("Downvote",
+            snackbarQueueService.Enqueue("Downvote",
                 "Your downvote has been submitted!",
                 ControlAppearance.Secondary,
-                null,
+                new SymbolIcon(SymbolRegular.ThumbDislike24),
                 TimeSpan.FromSeconds(2.5d));
         }
 
@@ -66,20 +65,20 @@ public partial class ModRatingsViewModel : ObservableObject
         {
             await ratingService.RemoveRating(selectedModService.SelectedMod!);
 
-            snackbarService.Show("Upvote",
+            snackbarQueueService.Enqueue("Upvote",
                 "Your upvote has been removed!",
                 ControlAppearance.Secondary,
-                null,
+                new SymbolIcon(SymbolRegular.ThumbLikeDislike24),
                 TimeSpan.FromSeconds(2.5d));
         }
         else
         {
             await ratingService.Upvote(selectedModService.SelectedMod!);
 
-            snackbarService.Show("Upvote",
+            snackbarQueueService.Enqueue("Upvote",
                 "Your upvote has been submitted!",
                 ControlAppearance.Secondary,
-                null,
+                new SymbolIcon(SymbolRegular.ThumbLike24),
                 TimeSpan.FromSeconds(2.5d));
         }
 

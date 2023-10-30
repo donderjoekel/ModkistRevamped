@@ -8,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 using TNRD.Modkist.Views.Pages;
 using TNRD.Modkist.Views.Windows;
 
-namespace TNRD.Modkist.Services;
+namespace TNRD.Modkist.Services.Hosted;
 
 /// <summary>
 /// Managed host of the application.

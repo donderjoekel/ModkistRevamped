@@ -15,6 +15,7 @@ using TNRD.Modkist.Factories.Controls;
 using TNRD.Modkist.Factories.ViewModels;
 using TNRD.Modkist.Models;
 using TNRD.Modkist.Services;
+using TNRD.Modkist.Services.Hosted;
 using TNRD.Modkist.Services.Rating;
 using TNRD.Modkist.Services.Subscription;
 using TNRD.Modkist.Settings;
@@ -43,6 +44,10 @@ public partial class App
         .ConfigureServices((context, services) =>
         {
             services.AddHostedService<ApplicationHostService>();
+
+            // Add an extra hosted service for the downloader
+            services.AddSingleton<ModManagerHostedService>();
+            services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<ModManagerHostedService>());
 
             // Configuration
             services.Configure<ModioSettings>(context.Configuration.GetSection(ModioSettings.SECTION));
@@ -96,6 +101,9 @@ public partial class App
             services.AddSingleton<SelectedModService>();
             services.AddSingleton<SettingsService>();
             services.AddSingleton<ProfileService>();
+            services.AddSingleton<InstallationService>();
+            services.AddSingleton<DownloadService>();
+            services.AddSingleton<SnackbarQueueService>();
 
             services.AddSingleton<RemoteRatingService>();
             services.AddSingleton<StubRatingService>();

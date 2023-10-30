@@ -9,17 +9,17 @@ public partial class ModSubscriptionViewModel : ObservableObject
 {
     private readonly SelectedModService selectedModService;
     private readonly ISubscriptionService subscriptionService;
-    private readonly ISnackbarService snackbarService;
+    private readonly SnackbarQueueService snackbarQueueService;
 
     public ModSubscriptionViewModel(
         SelectedModService selectedModService,
         ISubscriptionService subscriptionService,
-        ISnackbarService snackbarService
+        SnackbarQueueService snackbarQueueService
     )
     {
         this.selectedModService = selectedModService;
         this.subscriptionService = subscriptionService;
-        this.snackbarService = snackbarService;
+        this.snackbarQueueService = snackbarQueueService;
 
         UpdateView();
     }
@@ -36,7 +36,7 @@ public partial class ModSubscriptionViewModel : ObservableObject
         {
             await subscriptionService.Unsubscribe(selectedModService.SelectedMod!);
 
-            snackbarService.Show("Unsubscribe",
+            snackbarQueueService.Enqueue("Unsubscribe",
                 $"You have been unsubscribed from '{selectedModService.SelectedMod!.Name}'!",
                 ControlAppearance.Secondary,
                 null,
@@ -46,7 +46,7 @@ public partial class ModSubscriptionViewModel : ObservableObject
         {
             await subscriptionService.Subscribe(selectedModService.SelectedMod!);
 
-            snackbarService.Show("Subscribe",
+            snackbarQueueService.Enqueue("Subscribe",
                 $"You have been subscribed to '{selectedModService.SelectedMod!.Name}'!",
                 ControlAppearance.Secondary,
                 null,

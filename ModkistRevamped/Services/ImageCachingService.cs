@@ -61,9 +61,7 @@ public class ImageCachingService
             IHttpClientFactory httpClientFactory = App.GetService<IHttpClientFactory>();
             HttpClient httpClient = httpClientFactory.CreateClient();
 
-            string urlWithKey = url + "?api_key=188efbb7446e6d527b0991c3672b3e31";
-
-            HttpRequestMessage request = new(HttpMethod.Get, urlWithKey);
+            HttpRequestMessage request = new(HttpMethod.Get, url);
             HttpResponseMessage response;
 
             try

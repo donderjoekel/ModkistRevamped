@@ -24,6 +24,7 @@ public class ProfileService
     public event ProfileDeletedDelegate? ProfileDeleted;
     public event ProfileSelectedDelegate? ProfileSelected;
 
+    public string SelectedProfileId => selectedProfile.Id;
     public ProfileType SelectedProfileType => selectedProfile.Type;
 
     private void SetActiveProfile()
@@ -46,10 +47,10 @@ public class ProfileService
         }
     }
 
-    private string GetProfileDirectory()
+    private static string GetProfileDirectory()
     {
         string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "profiles");
+            "Profiles");
         if (!Directory.Exists(path))
             Directory.CreateDirectory(path);
         return path;
@@ -66,7 +67,7 @@ public class ProfileService
             DisplayName = "Mod.io"
         });
 
-        string[] existingProfiles = Directory.GetFiles(GetProfileDirectory());
+        string[] existingProfiles = Directory.GetFiles(GetProfileDirectory(), "*.profile");
         profiles.AddRange(existingProfiles
             .Select(existingProfile => JsonConvert.DeserializeObject<ProfileModel>(File.ReadAllText(existingProfile)))
             .Where(profile => profile != null)!);
@@ -99,7 +100,7 @@ public class ProfileService
             return;
 
         string json = JsonConvert.SerializeObject(profile);
-        string path = Path.Combine(GetProfileDirectory(), $"{profile.Id}.json");
+        string path = Path.Combine(GetProfileDirectory(), $"{profile.Id}.profile");
         File.WriteAllText(path, json);
     }
 
@@ -123,7 +124,7 @@ public class ProfileService
         if (profileModel.Type != ProfileType.Local)
             return;
 
-        string path = Path.Combine(GetProfileDirectory(), $"{profileModel.Id}.json");
+        string path = Path.Combine(GetProfileDirectory(), $"{profileModel.Id}.profile");
         File.Delete(path);
         ProfileDeleted?.Invoke();
     }

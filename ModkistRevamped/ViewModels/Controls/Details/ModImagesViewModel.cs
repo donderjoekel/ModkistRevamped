@@ -1,8 +1,10 @@
 ﻿using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Modio.Models;
 using TNRD.Modkist.Services;
 using Wpf.Ui.Controls;
 using Image = Modio.Models.Image;
+using Visibility = System.Windows.Visibility;
 
 namespace TNRD.Modkist.ViewModels.Controls.Details;
 
@@ -43,8 +45,20 @@ public partial class ModImagesViewModel : ObservableObject
     private void InitializeImages()
     {
         images.Clear();
-        images.Add(selectedModService.SelectedMod!.Logo!.Thumb1280x720!);
-        foreach (Image mediaImage in selectedModService.SelectedMod!.Media.Images)
+
+        Mod? selectedMod = selectedModService.SelectedMod;
+
+        if (selectedMod!.Logo != null)
+        {
+            if (selectedMod.Logo!.Thumb1280x720 != null)
+                images.Add(selectedMod.Logo!.Thumb1280x720);
+            else if (selectedMod.Logo!.Thumb640x360 != null)
+                images.Add(selectedMod.Logo!.Thumb640x360);
+            else if (selectedMod.Logo!.Thumb320x180 != null)
+                images.Add(selectedMod.Logo!.Thumb320x180);
+        }
+
+        foreach (Image mediaImage in selectedMod.Media.Images)
         {
             if (mediaImage.Original != null)
                 images.Add(mediaImage.Original);

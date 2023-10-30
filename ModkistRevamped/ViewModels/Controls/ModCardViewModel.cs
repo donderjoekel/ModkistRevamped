@@ -15,7 +15,7 @@ public partial class ModCardViewModel : ObservableObject
     private readonly INavigationService navigationService;
     private readonly SelectedModService selectedModService;
     private readonly ISubscriptionService subscriptionService;
-    private readonly ISnackbarService snackbarService;
+    private readonly SnackbarQueueService snackbarQueueService;
     private readonly Mod mod;
 
     public ModCardViewModel(
@@ -23,7 +23,7 @@ public partial class ModCardViewModel : ObservableObject
         INavigationService navigationService,
         SelectedModService selectedModService,
         ISubscriptionService subscriptionService,
-        ISnackbarService snackbarService,
+        SnackbarQueueService snackbarQueueService,
         Mod mod
     )
     {
@@ -31,8 +31,11 @@ public partial class ModCardViewModel : ObservableObject
         this.navigationService = navigationService;
         this.selectedModService = selectedModService;
         this.subscriptionService = subscriptionService;
-        this.snackbarService = snackbarService;
+        this.snackbarQueueService = snackbarQueueService;
         this.mod = mod;
+
+        this.subscriptionService.SubscriptionAdded += OnSubscriptionAdded;
+        this.subscriptionService.SubscriptionRemoved += OnSubscriptionRemoved;
 
         Title = this.mod.Name!;
         UpdateView();
@@ -71,7 +74,7 @@ public partial class ModCardViewModel : ObservableObject
         {
             await subscriptionService.Unsubscribe(mod);
 
-            snackbarService.Show("Unsubscribe",
+            snackbarQueueService.Enqueue("Unsubscribe",
                 $"You have been unsubscribed from '{mod.Name}'!",
                 ControlAppearance.Secondary,
                 null,
@@ -81,7 +84,7 @@ public partial class ModCardViewModel : ObservableObject
         {
             await subscriptionService.Subscribe(mod);
 
-            snackbarService.Show("Subscribe",
+            snackbarQueueService.Enqueue("Subscribe",
                 $"You have been subscribed to '{mod.Name}'!",
                 ControlAppearance.Secondary,
                 null,
@@ -100,5 +103,21 @@ public partial class ModCardViewModel : ObservableObject
         ButtonContent = subscriptionService.IsSubscribed(mod)
             ? "Unsubscribe"
             : "Subscribe";
+    }
+
+    private void OnSubscriptionAdded(uint modId)
+    {
+        if (mod.Id != modId)
+            return;
+
+        UpdateView();
+    }
+
+    private void OnSubscriptionRemoved(uint modId)
+    {
+        if (mod.Id != modId)
+            return;
+
+        UpdateView();
     }
 }

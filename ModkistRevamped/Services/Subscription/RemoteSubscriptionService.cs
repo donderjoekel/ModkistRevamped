@@ -19,14 +19,24 @@ public class RemoteSubscriptionService : ISubscriptionService
     }
 
     public bool CanSubscribe => true;
+    public event SubscriptionsLoadedDelegate? SubscriptionsLoaded;
+    public event SubscriptionAddedDelegate? SubscriptionAdded;
+    public event SubscriptionRemovedDelegate? SubscriptionRemoved;
 
-    public async Task Initialize()
+    Task ISubscriptionService.Initialize()
+    {
+        return Initialize(true);
+    }
+
+    private async Task Initialize(bool notify)
     {
         if (!settingsService.HasValidAccessToken())
             throw new InvalidOperationException("Cannot initialize subscription service without a valid access token!");
 
         subscriptions.Clear();
         subscriptions.AddRange(await userClient.GetSubscriptions().ToList());
+
+        if (notify) SubscriptionsLoaded?.Invoke();
     }
 
     public bool IsSubscribed(Mod mod)
@@ -47,7 +57,17 @@ public class RemoteSubscriptionService : ISubscriptionService
     public async Task Subscribe(uint modId)
     {
         await modsClient[modId].Subscribe();
-        await Initialize(); // Calling initialize here to update the subscriptions list
+        await Initialize(false);
+        SubscriptionAdded?.Invoke(modId);
+
+        IReadOnlyList<Dependency> dependencies = await modsClient[modId].Dependencies.Get();
+        foreach (Dependency dependency in dependencies)
+        {
+            if (subscriptions.Any(x => x.Id == dependency.ModId))
+                continue;
+
+            await Subscribe(dependency.ModId);
+        }
     }
 
     public Task Unsubscribe(Mod mod)
@@ -58,6 +78,12 @@ public class RemoteSubscriptionService : ISubscriptionService
     public async Task Unsubscribe(uint modId)
     {
         await modsClient[modId].Unsubscribe();
-        await Initialize(); // Calling initialize here to update the subscriptions list
+        await Initialize(false);
+        SubscriptionRemoved?.Invoke(modId);
+    }
+
+    public IEnumerable<Mod> GetSubscribedMods()
+    {
+        return subscriptions;
     }
 }
