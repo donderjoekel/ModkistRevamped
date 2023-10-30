@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net.Http;
 using Ionic.Zip;
+using Microsoft.Extensions.Logging;
 using TNRD.Modkist.Services;
 using TNRD.Modkist.Views.Pages;
 using Wpf.Ui;
@@ -18,18 +19,21 @@ public class VerifyBepInExViewModel : ObservableObject, INavigationAware
     private readonly INavigationService navigationService;
     private readonly HttpClient httpClient;
     private readonly IContentDialogService contentDialogService;
+    private readonly ILogger<VerifyBepInExViewModel> logger;
 
     public VerifyBepInExViewModel(
         SettingsService settingsService,
         INavigationService navigationService,
         HttpClient httpClient,
-        IContentDialogService contentDialogService
+        IContentDialogService contentDialogService,
+        ILogger<VerifyBepInExViewModel> logger
     )
     {
         this.settingsService = settingsService;
         this.navigationService = navigationService;
         this.httpClient = httpClient;
         this.contentDialogService = contentDialogService;
+        this.logger = logger;
     }
 
     async void INavigationAware.OnNavigatedTo()
@@ -89,7 +93,7 @@ public class VerifyBepInExViewModel : ObservableObject, INavigationAware
                 "Failed to download BepInEx, please try again later!",
                 "OK");
 
-            // TODO: Log exception to file
+            logger.LogError(e, "Failed to download BepInEx");
 
             Application.Current.Shutdown(-1); // TODO: Does this need a custom code?
             return;
@@ -107,7 +111,7 @@ public class VerifyBepInExViewModel : ObservableObject, INavigationAware
                 "Failed to download BepInEx, please try again later!",
                 "OK");
 
-            // TODO: Log exception to file
+            logger.LogError(e, "Failed to read bytes from BepInEx");
 
             Application.Current.Shutdown(-1); // TODO: Does this need a custom code?
             return;
