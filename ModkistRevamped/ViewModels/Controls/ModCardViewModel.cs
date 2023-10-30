@@ -16,7 +16,7 @@ public partial class ModCardViewModel : ObservableObject
     private readonly SelectedModService selectedModService;
     private readonly ISubscriptionService subscriptionService;
     private readonly SnackbarQueueService snackbarQueueService;
-    private readonly Mod mod;
+    private readonly DependenciesService dependenciesService;
 
     public ModCardViewModel(
         ImageCachingService imageCachingService,
@@ -24,6 +24,7 @@ public partial class ModCardViewModel : ObservableObject
         SelectedModService selectedModService,
         ISubscriptionService subscriptionService,
         SnackbarQueueService snackbarQueueService,
+        DependenciesService dependenciesService,
         Mod mod
     )
     {
@@ -32,12 +33,16 @@ public partial class ModCardViewModel : ObservableObject
         this.selectedModService = selectedModService;
         this.subscriptionService = subscriptionService;
         this.snackbarQueueService = snackbarQueueService;
-        this.mod = mod;
+        this.dependenciesService = dependenciesService;
 
         this.subscriptionService.SubscriptionAdded += OnSubscriptionAdded;
         this.subscriptionService.SubscriptionRemoved += OnSubscriptionRemoved;
 
-        Title = this.mod.Name!;
+        this.dependenciesService.DependencyAdded += OnDependencyAdded;
+        this.dependenciesService.DependencyRemoved += OnDependencyRemoved;
+
+        Mod = mod;
+        Title = Mod.Name!;
         UpdateView();
         LoadImage();
     }
@@ -47,15 +52,14 @@ public partial class ModCardViewModel : ObservableObject
     [ObservableProperty] private Visibility progressVisibility = Visibility.Visible;
     [ObservableProperty] private ControlAppearance buttonAppearance;
     [ObservableProperty] private string? buttonContent;
+    [ObservableProperty] private bool canSubscribe;
 
-    public bool CanSubscribe => subscriptionService.CanSubscribe;
-
-    public Mod Mod => mod;
+    public Mod Mod { get; }
 
     private async void LoadImage()
     {
         ProgressVisibility = Visibility.Visible;
-        string imagePath = await imageCachingService.GetImagePath(mod.Logo!.Thumb320x180!);
+        string imagePath = await imageCachingService.GetImagePath(Mod.Logo!.Thumb320x180!);
         ImageSource = new BitmapImage(new Uri(imagePath));
         ProgressVisibility = Visibility.Collapsed;
     }
@@ -63,22 +67,26 @@ public partial class ModCardViewModel : ObservableObject
     [RelayCommand]
     private void Clicked()
     {
-        selectedModService.SetSelectedMod(mod, false);
+        selectedModService.SetSelectedMod(Mod, false);
         navigationService.NavigateWithHierarchy(typeof(ModDetailsPage));
     }
 
     [RelayCommand]
     private async Task ToggleSubscription()
     {
-        if (subscriptionService.IsSubscribed(mod))
+        if (subscriptionService.IsSubscribed(Mod))
         {
-            await subscriptionService.Unsubscribe(mod);
-            snackbarQueueService.Enqueue("Unsubscribe", $"You have been unsubscribed from '{mod.Name}'!");
+            if (!await subscriptionService.Unsubscribe(Mod))
+                return;
+
+            snackbarQueueService.Enqueue("Unsubscribe", $"You have been unsubscribed from '{Mod.Name}'!");
         }
         else
         {
-            await subscriptionService.Subscribe(mod);
-            snackbarQueueService.Enqueue("Subscribe", $"You have been subscribed to '{mod.Name}'!");
+            if (!await subscriptionService.Subscribe(Mod))
+                return;
+
+            snackbarQueueService.Enqueue("Subscribe", $"You have been subscribed to '{Mod.Name}'!");
         }
 
         UpdateView();
@@ -86,18 +94,22 @@ public partial class ModCardViewModel : ObservableObject
 
     private void UpdateView()
     {
-        ButtonAppearance = subscriptionService.IsSubscribed(mod)
+        ButtonAppearance = subscriptionService.IsSubscribed(Mod)
             ? ControlAppearance.Secondary
             : ControlAppearance.Primary;
 
-        ButtonContent = subscriptionService.IsSubscribed(mod)
+        ButtonContent = subscriptionService.IsSubscribed(Mod)
             ? "Unsubscribe"
             : "Subscribe";
+
+        CanSubscribe = subscriptionService.IsSubscribed(Mod)
+            ? !dependenciesService.IsDependency(Mod)
+            : subscriptionService.CanSubscribe;
     }
 
     private void OnSubscriptionAdded(uint modId)
     {
-        if (mod.Id != modId)
+        if (Mod.Id != modId)
             return;
 
         UpdateView();
@@ -105,7 +117,23 @@ public partial class ModCardViewModel : ObservableObject
 
     private void OnSubscriptionRemoved(uint modId)
     {
-        if (mod.Id != modId)
+        if (Mod.Id != modId)
+            return;
+
+        UpdateView();
+    }
+
+    private void OnDependencyAdded(uint dependencyId)
+    {
+        if (Mod.Id != dependencyId)
+            return;
+
+        UpdateView();
+    }
+
+    private void OnDependencyRemoved(uint dependencyId)
+    {
+        if (Mod.Id != dependencyId)
             return;
 
         UpdateView();

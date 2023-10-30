@@ -27,24 +27,24 @@ public class StubSubscriptionService : ISubscriptionService
         return false;
     }
 
-    public Task Subscribe(Mod mod)
+    public Task<bool> Subscribe(Mod mod)
     {
-        return Task.CompletedTask;
+        return Task.FromResult(false);
     }
 
-    public Task Subscribe(uint modId)
+    public Task<bool> Subscribe(uint modId)
     {
-        return Task.CompletedTask;
+        return Task.FromResult(false);
     }
 
-    public Task Unsubscribe(Mod mod)
+    public Task<bool> Unsubscribe(Mod mod)
     {
-        return Task.CompletedTask;
+        return Task.FromResult(false);
     }
 
-    public Task Unsubscribe(uint modId)
+    public Task<bool> Unsubscribe(uint modId)
     {
-        return Task.CompletedTask;
+        return Task.FromResult(false);
     }
 
     public IEnumerable<Mod> GetSubscribedMods()

@@ -36,7 +36,8 @@ public partial class ModRatingsViewModel : ObservableObject
     {
         if (ratingService.HasDownvoted(selectedModService.SelectedMod!))
         {
-            await ratingService.RemoveRating(selectedModService.SelectedMod!);
+            if (!await ratingService.RemoveRating(selectedModService.SelectedMod!))
+                return;
 
             snackbarQueueService.Enqueue("Downvote",
                 "Your downvote has been removed!",
@@ -45,7 +46,8 @@ public partial class ModRatingsViewModel : ObservableObject
         }
         else
         {
-            await ratingService.Downvote(selectedModService.SelectedMod!);
+            if (!await ratingService.Downvote(selectedModService.SelectedMod!))
+                return;
 
             snackbarQueueService.Enqueue("Downvote",
                 "Your downvote has been submitted!",
@@ -61,7 +63,8 @@ public partial class ModRatingsViewModel : ObservableObject
     {
         if (ratingService.HasUpvoted(selectedModService.SelectedMod!))
         {
-            await ratingService.RemoveRating(selectedModService.SelectedMod!);
+            if (!await ratingService.RemoveRating(selectedModService.SelectedMod!))
+                return;
 
             snackbarQueueService.Enqueue("Upvote",
                 "Your upvote has been removed!",
@@ -70,7 +73,8 @@ public partial class ModRatingsViewModel : ObservableObject
         }
         else
         {
-            await ratingService.Upvote(selectedModService.SelectedMod!);
+            if (!await ratingService.Upvote(selectedModService.SelectedMod!))
+                return;
 
             snackbarQueueService.Enqueue("Upvote",
                 "Your upvote has been submitted!",

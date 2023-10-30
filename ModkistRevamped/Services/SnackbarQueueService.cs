@@ -32,4 +32,12 @@ public class SnackbarQueueService
 
         snackbarPresenter.AddToQue(snackbar);
     }
+
+    public void EnqueueRateLimitMessage()
+    {
+        Enqueue("Oops!",
+            "You've been rate limited for a minute, please try again later.",
+            ControlAppearance.Danger,
+            new SymbolIcon(SymbolRegular.ErrorCircle24));
+    }
 }

@@ -1,4 +1,5 @@
-﻿using Modio;
+﻿using Microsoft.Extensions.Logging;
+using Modio;
 using Modio.Models;
 using TNRD.Modkist.Services;
 using Wpf.Ui.Controls;
@@ -11,18 +12,21 @@ public class RemoveModJob : JobBase
     private readonly ModsClient modsClient;
     private readonly InstallationService installationService;
     private readonly SnackbarQueueService snackbarQueueService;
+    private readonly ILogger<RemoveModJob> logger;
 
     public RemoveModJob(
         uint modId,
         ModsClient modsClient,
         InstallationService installationService,
-        SnackbarQueueService snackbarQueueService
+        SnackbarQueueService snackbarQueueService,
+        ILogger<RemoveModJob> logger
     )
     {
         this.modId = modId;
         this.modsClient = modsClient;
         this.installationService = installationService;
         this.snackbarQueueService = snackbarQueueService;
+        this.logger = logger;
     }
 
     public override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -51,6 +55,12 @@ public class RemoveModJob : JobBase
                 new SymbolIcon(SymbolRegular.Delete24));
 
             return true;
+        }
+        catch (RateLimitExceededException)
+        {
+            snackbarQueueService.EnqueueRateLimitMessage();
+            logger.LogWarning("Being rate limited!");
+            return true; // Returning true here because we simply want to abort
         }
         catch (NotFoundException e)
         {

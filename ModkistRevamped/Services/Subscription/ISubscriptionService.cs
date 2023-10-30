@@ -20,10 +20,10 @@ public interface ISubscriptionService
 
     bool IsSubscribed(Mod mod);
     bool IsSubscribed(uint modId);
-    Task Subscribe(Mod mod);
-    Task Subscribe(uint modId);
-    Task Unsubscribe(Mod mod);
-    Task Unsubscribe(uint modId);
+    Task<bool> Subscribe(Mod mod);
+    Task<bool> Subscribe(uint modId);
+    Task<bool> Unsubscribe(Mod mod);
+    Task<bool> Unsubscribe(uint modId);
 
     IEnumerable<Mod> GetSubscribedMods();
 }

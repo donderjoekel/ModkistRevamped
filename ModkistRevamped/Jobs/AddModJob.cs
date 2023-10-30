@@ -1,4 +1,5 @@
-﻿using Modio;
+﻿using Microsoft.Extensions.Logging;
+using Modio;
 using Modio.Models;
 using TNRD.Modkist.Services;
 using Wpf.Ui.Controls;
@@ -12,13 +13,15 @@ public class AddModJob : JobBase
     private readonly InstallationService installationService;
     private readonly DownloadService downloadService;
     private readonly SnackbarQueueService snackbarQueueService;
+    private readonly ILogger<AddModJob> logger;
 
     public AddModJob(
         uint modId,
         ModsClient modsClient,
         InstallationService installationService,
         DownloadService downloadService,
-        SnackbarQueueService snackbarQueueService
+        SnackbarQueueService snackbarQueueService,
+        ILogger<AddModJob> logger
     )
     {
         this.modId = modId;
@@ -26,29 +29,38 @@ public class AddModJob : JobBase
         this.installationService = installationService;
         this.downloadService = downloadService;
         this.snackbarQueueService = snackbarQueueService;
+        this.logger = logger;
     }
 
     public override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        Mod mod = await modsClient[modId].Get();
-
-        string? downloadedFilePath = await downloadService.DownloadMod(mod);
-
-        if (string.IsNullOrEmpty(downloadedFilePath))
+        try
         {
+            Mod mod = await modsClient[modId].Get();
+
+            string? downloadedFilePath = await downloadService.DownloadMod(mod);
+
+            if (string.IsNullOrEmpty(downloadedFilePath))
+            {
+                snackbarQueueService.Enqueue("Install",
+                    $"Unable to install '{mod.Name}'",
+                    ControlAppearance.Caution,
+                    new SymbolIcon(SymbolRegular.Warning24));
+
+                return;
+            }
+
+            installationService.InstallMod(mod, downloadedFilePath);
+
             snackbarQueueService.Enqueue("Install",
-                $"Unable to install '{mod.Name}'",
-                ControlAppearance.Caution,
-                new SymbolIcon(SymbolRegular.Warning24));
-
-            return;
+                $"'{mod.Name}' has been installed!",
+                ControlAppearance.Secondary,
+                new SymbolIcon(SymbolRegular.Checkmark24));
         }
-
-        installationService.InstallMod(mod, downloadedFilePath);
-
-        snackbarQueueService.Enqueue("Install",
-            $"'{mod.Name}' has been installed!",
-            ControlAppearance.Secondary,
-            new SymbolIcon(SymbolRegular.Checkmark24));
+        catch (RateLimitExceededException)
+        {
+            snackbarQueueService.EnqueueRateLimitMessage();
+            logger.LogWarning("Being rate limited!");
+        }
     }
 }

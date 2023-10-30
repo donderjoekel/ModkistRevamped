@@ -11,10 +11,10 @@ public interface IRatingService
     bool HasUpvoted(uint modId);
     bool HasDownvoted(Mod mod);
     bool HasDownvoted(uint modId);
-    Task Upvote(Mod mod);
-    Task Upvote(uint modId);
-    Task Downvote(Mod mod);
-    Task Downvote(uint modId);
-    Task RemoveRating(Mod mod);
-    Task RemoveRating(uint modId);
+    Task<bool> Upvote(Mod mod);
+    Task<bool> Upvote(uint modId);
+    Task<bool> Downvote(Mod mod);
+    Task<bool> Downvote(uint modId);
+    Task<bool> RemoveRating(Mod mod);
+    Task<bool> RemoveRating(uint modId);
 }

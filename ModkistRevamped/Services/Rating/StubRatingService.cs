@@ -31,33 +31,33 @@ public class StubRatingService : IRatingService
         return false;
     }
 
-    public Task Upvote(Mod mod)
+    public Task<bool> Upvote(Mod mod)
     {
-        return Task.CompletedTask;
+        return Task.FromResult(false);
     }
 
-    public Task Upvote(uint modId)
+    public Task<bool> Upvote(uint modId)
     {
-        return Task.CompletedTask;
+        return Task.FromResult(false);
     }
 
-    public Task Downvote(Mod mod)
+    public Task<bool> Downvote(Mod mod)
     {
-        return Task.CompletedTask;
+        return Task.FromResult(false);
     }
 
-    public Task Downvote(uint modId)
+    public Task<bool> Downvote(uint modId)
     {
-        return Task.CompletedTask;
+        return Task.FromResult(false);
     }
 
-    public Task RemoveRating(Mod mod)
+    public Task<bool> RemoveRating(Mod mod)
     {
-        return Task.CompletedTask;
+        return Task.FromResult(false);
     }
 
-    public Task RemoveRating(uint modId)
+    public Task<bool> RemoveRating(uint modId)
     {
-        return Task.CompletedTask;
+        return Task.FromResult(false);
     }
 }
