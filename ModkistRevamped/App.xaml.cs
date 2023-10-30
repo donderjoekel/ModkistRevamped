@@ -15,6 +15,8 @@ using TNRD.Modkist.Factories.Controls;
 using TNRD.Modkist.Factories.ViewModels;
 using TNRD.Modkist.Models;
 using TNRD.Modkist.Services;
+using TNRD.Modkist.Services.Rating;
+using TNRD.Modkist.Services.Subscription;
 using TNRD.Modkist.Settings;
 using TNRD.Modkist.ViewModels.Pages;
 using TNRD.Modkist.ViewModels.Windows;
@@ -79,6 +81,8 @@ public partial class App
             services.AddSingleton<ModStatisticsViewModelFactory>();
             services.AddSingleton<ModSubscriptionViewModelFactory>();
             services.AddSingleton<ModTagsViewModelFactory>();
+            services.AddSingleton<ProfileListViewModelFactory>();
+            services.AddSingleton<ProfileListItemViewModelFactory>();
 
             // Main window and services
             services.AddSingleton<MainWindow>();
@@ -91,8 +95,35 @@ public partial class App
             services.AddSingleton<SteamService>();
             services.AddSingleton<SelectedModService>();
             services.AddSingleton<SettingsService>();
-            services.AddSingleton<SubscriptionService>();
-            services.AddSingleton<RatingService>();
+            services.AddSingleton<ProfileService>();
+
+            services.AddSingleton<RemoteRatingService>();
+            services.AddSingleton<StubRatingService>();
+            services.AddSingleton<IRatingService>(provider =>
+            {
+                ProfileService profileService = provider.GetRequiredService<ProfileService>();
+
+                return profileService.SelectedProfileType switch
+                {
+                    ProfileType.Remote => provider.GetRequiredService<RemoteRatingService>(),
+                    _ => provider.GetRequiredService<StubRatingService>()
+                };
+            });
+
+            services.AddSingleton<RemoteSubscriptionService>();
+            services.AddSingleton<LocalSubscriptionService>();
+            services.AddSingleton<StubSubscriptionService>();
+            services.AddSingleton<ISubscriptionService>(provider =>
+            {
+                ProfileService profileService = provider.GetRequiredService<ProfileService>();
+
+                return profileService.SelectedProfileType switch
+                {
+                    ProfileType.Remote => provider.GetRequiredService<RemoteSubscriptionService>(),
+                    ProfileType.Local => provider.GetRequiredService<LocalSubscriptionService>(),
+                    _ => provider.GetRequiredService<StubSubscriptionService>()
+                };
+            });
 
             // Shared models
             services.AddSingleton<LoginModel>();
@@ -107,6 +138,7 @@ public partial class App
             services.AddSingleton<BrowsePluginsPage>();
             services.AddSingleton<BrowseBlueprintsPage>();
             services.AddTransient<ModDetailsPage>().AddTransient<ModDetailsViewModel>();
+            services.AddSingleton<ProfilesPage>();
         }).Build();
 
     /// <summary>

@@ -5,6 +5,7 @@ using Modio;
 using Modio.Models;
 using TNRD.Modkist.Factories.Controls;
 using TNRD.Modkist.Services;
+using TNRD.Modkist.Views.Controls;
 using TNRD.Modkist.Views.Controls.Details.Dependencies;
 using Visibility = System.Windows.Visibility;
 
@@ -47,7 +48,7 @@ public partial class ModDependenciesViewModel : ObservableObject
 
             if (i > 0)
             {
-                Collection.Add(new ModDependencySeparator());
+                Collection.Add(new Separator());
             }
 
             ModDependency modDependency = modDependencyFactory.Create(dependency);

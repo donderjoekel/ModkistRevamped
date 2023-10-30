@@ -1,4 +1,5 @@
 ﻿using TNRD.Modkist.Services;
+using TNRD.Modkist.Services.Subscription;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
 
@@ -7,12 +8,12 @@ namespace TNRD.Modkist.ViewModels.Controls.Details.Sidebar;
 public partial class ModSubscriptionViewModel : ObservableObject
 {
     private readonly SelectedModService selectedModService;
-    private readonly SubscriptionService subscriptionService;
+    private readonly ISubscriptionService subscriptionService;
     private readonly ISnackbarService snackbarService;
 
     public ModSubscriptionViewModel(
         SelectedModService selectedModService,
-        SubscriptionService subscriptionService,
+        ISubscriptionService subscriptionService,
         ISnackbarService snackbarService
     )
     {
@@ -26,10 +27,12 @@ public partial class ModSubscriptionViewModel : ObservableObject
     [ObservableProperty] private ControlAppearance appearance;
     [ObservableProperty] private string? content;
 
+    public bool CanSubscribe => subscriptionService.CanSubscribe;
+
     [RelayCommand]
     private async Task ToggleSubscription()
     {
-        if (subscriptionService.IsSubscribedToMod(selectedModService.SelectedMod!))
+        if (subscriptionService.IsSubscribed(selectedModService.SelectedMod!))
         {
             await subscriptionService.Unsubscribe(selectedModService.SelectedMod!);
 
@@ -55,11 +58,11 @@ public partial class ModSubscriptionViewModel : ObservableObject
 
     private void UpdateView()
     {
-        Appearance = subscriptionService.IsSubscribedToMod(selectedModService.SelectedMod!)
+        Appearance = subscriptionService.IsSubscribed(selectedModService.SelectedMod!)
             ? ControlAppearance.Secondary
             : ControlAppearance.Primary;
 
-        Content = subscriptionService.IsSubscribedToMod(selectedModService.SelectedMod!)
+        Content = subscriptionService.IsSubscribed(selectedModService.SelectedMod!)
             ? "Unsubscribe"
             : "Subscribe";
     }

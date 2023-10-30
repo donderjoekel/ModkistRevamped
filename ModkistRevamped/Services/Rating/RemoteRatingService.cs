@@ -1,24 +1,26 @@
 ﻿using Modio;
 using Modio.Models;
 
-namespace TNRD.Modkist.Services;
+namespace TNRD.Modkist.Services.Rating;
 
-public class RatingService
+public class RemoteRatingService : IRatingService
 {
     private readonly SettingsService settingsService;
     private readonly UserClient userClient;
     private readonly ModsClient modsClient;
 
-    private readonly List<Rating> ratings = new();
+    private readonly List<Modio.Models.Rating> ratings = new();
 
-    public RatingService(SettingsService settingsService, UserClient userClient, ModsClient modsClient)
+    public RemoteRatingService(SettingsService settingsService, UserClient userClient, ModsClient modsClient)
     {
         this.settingsService = settingsService;
         this.userClient = userClient;
         this.modsClient = modsClient;
     }
 
-    public async Task LoadAuthenticatedUserData()
+    public bool CanRate => true;
+
+    public async Task Initialize()
     {
         if (!settingsService.HasValidAccessToken())
             return;
@@ -55,7 +57,7 @@ public class RatingService
     public async Task Upvote(uint modId)
     {
         await modsClient[modId].Rate(NewRating.Positive);
-        await LoadAuthenticatedUserData();
+        await Initialize();
     }
 
     public Task Downvote(Mod mod)
@@ -66,7 +68,7 @@ public class RatingService
     public async Task Downvote(uint modId)
     {
         await modsClient[modId].Rate(NewRating.Negative);
-        await LoadAuthenticatedUserData();
+        await Initialize();
     }
 
     public Task RemoveRating(Mod mod)
@@ -77,6 +79,6 @@ public class RatingService
     public async Task RemoveRating(uint modId)
     {
         await modsClient[modId].Rate(NewRating.None);
-        await LoadAuthenticatedUserData();
+        await Initialize();
     }
 }

@@ -34,13 +34,15 @@ public partial class MainWindowViewModel : ObservableObject
         //     Icon = new SymbolIcon { Symbol = SymbolRegular.Book24 },
         //     TargetPageType = typeof(BrowseGuidesPage)
         // },
-        new NavigationViewItemSeparator()
+        new NavigationViewItemSeparator(),
         // new NavigationViewItem()
         // {
         //     Content = "Installed Mods",
         //     Icon = new SymbolIcon { Symbol = SymbolRegular.Apps24 },
         //     TargetPageType = typeof(InstalledModsPage)
         // }
+        new NavigationViewItemSeparator(),
+        new NavigationViewItem("Profiles", SymbolRegular.Person24, typeof(ProfilesPage))
     };
 
     [ObservableProperty]

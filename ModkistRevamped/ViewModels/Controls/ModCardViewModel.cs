@@ -1,6 +1,7 @@
 ﻿using System.Windows.Media.Imaging;
 using Modio.Models;
 using TNRD.Modkist.Services;
+using TNRD.Modkist.Services.Subscription;
 using TNRD.Modkist.Views.Pages;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
@@ -13,7 +14,7 @@ public partial class ModCardViewModel : ObservableObject
     private readonly ImageCachingService imageCachingService;
     private readonly INavigationService navigationService;
     private readonly SelectedModService selectedModService;
-    private readonly SubscriptionService subscriptionService;
+    private readonly ISubscriptionService subscriptionService;
     private readonly ISnackbarService snackbarService;
     private readonly Mod mod;
 
@@ -21,7 +22,7 @@ public partial class ModCardViewModel : ObservableObject
         ImageCachingService imageCachingService,
         INavigationService navigationService,
         SelectedModService selectedModService,
-        SubscriptionService subscriptionService,
+        ISubscriptionService subscriptionService,
         ISnackbarService snackbarService,
         Mod mod
     )
@@ -44,6 +45,8 @@ public partial class ModCardViewModel : ObservableObject
     [ObservableProperty] private ControlAppearance buttonAppearance;
     [ObservableProperty] private string? buttonContent;
 
+    public bool CanSubscribe => subscriptionService.CanSubscribe;
+
     public Mod Mod => mod;
 
     private async void LoadImage()
@@ -64,7 +67,7 @@ public partial class ModCardViewModel : ObservableObject
     [RelayCommand]
     private async Task ToggleSubscription()
     {
-        if (subscriptionService.IsSubscribedToMod(mod))
+        if (subscriptionService.IsSubscribed(mod))
         {
             await subscriptionService.Unsubscribe(mod);
 
@@ -90,11 +93,11 @@ public partial class ModCardViewModel : ObservableObject
 
     private void UpdateView()
     {
-        ButtonAppearance = subscriptionService.IsSubscribedToMod(mod)
+        ButtonAppearance = subscriptionService.IsSubscribed(mod)
             ? ControlAppearance.Secondary
             : ControlAppearance.Primary;
 
-        ButtonContent = subscriptionService.IsSubscribedToMod(mod)
+        ButtonContent = subscriptionService.IsSubscribed(mod)
             ? "Unsubscribe"
             : "Subscribe";
     }

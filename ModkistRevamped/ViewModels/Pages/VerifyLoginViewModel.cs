@@ -1,4 +1,6 @@
 ﻿using TNRD.Modkist.Services;
+using TNRD.Modkist.Services.Rating;
+using TNRD.Modkist.Services.Subscription;
 using TNRD.Modkist.Views.Pages;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
@@ -9,14 +11,14 @@ public class VerifyLoginViewModel : ObservableObject, INavigationAware
 {
     private readonly SettingsService settingsService;
     private readonly INavigationService navigationService;
-    private readonly SubscriptionService subscriptionService;
-    private readonly RatingService ratingService;
+    private readonly ISubscriptionService subscriptionService;
+    private readonly IRatingService ratingService;
 
     public VerifyLoginViewModel(
         SettingsService settingsService,
         INavigationService navigationService,
-        SubscriptionService subscriptionService,
-        RatingService ratingService
+        ISubscriptionService subscriptionService,
+        IRatingService ratingService
     )
     {
         this.settingsService = settingsService;
@@ -27,16 +29,18 @@ public class VerifyLoginViewModel : ObservableObject, INavigationAware
 
     async void INavigationAware.OnNavigatedTo()
     {
+        await ratingService.Initialize();
+        await subscriptionService.Initialize();
+
         if (settingsService.HasValidAccessToken() || settingsService.SkippedLogin)
         {
-            if (settingsService.HasValidAccessToken())
+            if (settingsService.SkippedLogin)
             {
-                await ratingService.LoadAuthenticatedUserData();
-                await subscriptionService.LoadAuthenticatedUserData();
+                await Task.Delay(Random.Shared.Next(1000, 1500)); // Artificial delay to make it feel better    
             }
             else
             {
-                await Task.Delay(Random.Shared.Next(1000, 1500)); // Artificial delay to make it feel better    
+                await Task.Delay(Random.Shared.Next(250, 500)); // Artificial delay to make it feel better
             }
 
             navigationService.Navigate(typeof(BrowsePluginsPage));

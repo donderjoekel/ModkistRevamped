@@ -31,7 +31,8 @@
                         Appearance="{Binding ViewModel.ButtonAppearance}"
                         Command="{Binding ViewModel.ToggleSubscriptionCommand}"
                         Content="{Binding ViewModel.ButtonContent}"
-                        Icon="SaveCopy24" />
+                        Icon="SaveCopy24"
+                        IsEnabled="{Binding ViewModel.CanSubscribe}" />
                 </StackPanel>
             </ui:CardControl.Header>
         </ui:CardControl>

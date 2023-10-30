@@ -13,6 +13,7 @@ public partial class SettingsService : ObservableObject
     [ObservableProperty] private ApplicationTheme theme = ApplicationTheme.Unknown;
     [ObservableProperty] private AccessToken? accessToken;
     [ObservableProperty] private bool skippedLogin;
+    [ObservableProperty] private string selectedProfile = string.Empty;
 
     public SettingsService()
     {
@@ -45,6 +46,11 @@ public partial class SettingsService : ObservableObject
     }
 
     partial void OnSkippedLoginChanged(bool value)
+    {
+        Save();
+    }
+
+    partial void OnSelectedProfileChanged(string value)
     {
         Save();
     }

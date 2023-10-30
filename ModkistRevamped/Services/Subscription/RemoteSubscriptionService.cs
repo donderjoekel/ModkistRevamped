@@ -1,9 +1,9 @@
 ﻿using Modio;
 using Modio.Models;
 
-namespace TNRD.Modkist.Services;
+namespace TNRD.Modkist.Services.Subscription;
 
-public class SubscriptionService
+public class RemoteSubscriptionService : ISubscriptionService
 {
     private readonly SettingsService settingsService;
     private readonly UserClient userClient;
@@ -11,28 +11,30 @@ public class SubscriptionService
 
     private readonly List<Mod> subscriptions = new();
 
-    public SubscriptionService(UserClient userClient, SettingsService settingsService, ModsClient modsClient)
+    public RemoteSubscriptionService(UserClient userClient, SettingsService settingsService, ModsClient modsClient)
     {
         this.userClient = userClient;
         this.settingsService = settingsService;
         this.modsClient = modsClient;
     }
 
-    public async Task LoadAuthenticatedUserData()
+    public bool CanSubscribe => true;
+
+    public async Task Initialize()
     {
         if (!settingsService.HasValidAccessToken())
-            return;
+            throw new InvalidOperationException("Cannot initialize subscription service without a valid access token!");
 
         subscriptions.Clear();
         subscriptions.AddRange(await userClient.GetSubscriptions().ToList());
     }
 
-    public bool IsSubscribedToMod(Mod mod)
+    public bool IsSubscribed(Mod mod)
     {
-        return IsSubscribedToMod(mod.Id);
+        return IsSubscribed(mod.Id);
     }
 
-    public bool IsSubscribedToMod(uint modId)
+    public bool IsSubscribed(uint modId)
     {
         return subscriptions.Any(x => x.Id == modId);
     }
@@ -45,7 +47,7 @@ public class SubscriptionService
     public async Task Subscribe(uint modId)
     {
         await modsClient[modId].Subscribe();
-        await LoadAuthenticatedUserData();
+        await Initialize(); // Calling initialize here to update the subscriptions list
     }
 
     public Task Unsubscribe(Mod mod)
@@ -56,6 +58,6 @@ public class SubscriptionService
     public async Task Unsubscribe(uint modId)
     {
         await modsClient[modId].Unsubscribe();
-        await LoadAuthenticatedUserData();
+        await Initialize(); // Calling initialize here to update the subscriptions list
     }
 }

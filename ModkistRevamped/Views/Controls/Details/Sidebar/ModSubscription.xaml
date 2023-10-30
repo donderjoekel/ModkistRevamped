@@ -18,5 +18,6 @@
         HorizontalAlignment="Stretch"
         Appearance="{Binding ViewModel.Appearance}"
         Command="{Binding ViewModel.ToggleSubscriptionCommand}"
-        Content="{Binding ViewModel.Content}" />
+        Content="{Binding ViewModel.Content}"
+        IsEnabled="{Binding ViewModel.CanSubscribe}" />
 </UserControl>

@@ -1,0 +1,38 @@
+﻿<UserControl
+    x:Class="TNRD.Modkist.Views.Controls.ProfileList"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:TNRD.Modkist.Views.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    d:DataContext="{d:DesignInstance controls:ProfileList,
+                                     IsDesignTimeCreatable=False}"
+    d:DesignHeight="900"
+    d:DesignWidth="1600"
+    ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    mc:Ignorable="d">
+
+    <StackPanel>
+        <ui:Button
+            HorizontalAlignment="Right"
+            Command="{Binding ViewModel.AddProfileCommand}"
+            Content="Add Profile"
+            Icon="{ui:SymbolIcon Add24}" />
+        <Border
+            Margin="0,8"
+            Padding="16"
+            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+            BorderThickness="2"
+            CornerRadius="8">
+            <ItemsControl ItemsSource="{Binding ViewModel.CollectionView}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel HorizontalAlignment="Stretch" Orientation="Vertical" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </Border>
+    </StackPanel>
+</UserControl>

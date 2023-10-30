@@ -1,4 +1,5 @@
 ﻿using TNRD.Modkist.Services;
+using TNRD.Modkist.Services.Rating;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
 
@@ -7,19 +8,16 @@ namespace TNRD.Modkist.ViewModels.Controls.Details.Sidebar;
 public partial class ModRatingsViewModel : ObservableObject
 {
     private readonly SelectedModService selectedModService;
-    private readonly SettingsService settingsService;
-    private readonly RatingService ratingService;
+    private readonly IRatingService ratingService;
     private readonly ISnackbarService snackbarService;
 
     public ModRatingsViewModel(
         SelectedModService selectedModService,
-        SettingsService settingsService,
-        RatingService ratingService,
+        IRatingService ratingService,
         ISnackbarService snackbarService
     )
     {
         this.selectedModService = selectedModService;
-        this.settingsService = settingsService;
         this.ratingService = ratingService;
         this.snackbarService = snackbarService;
 
@@ -29,7 +27,7 @@ public partial class ModRatingsViewModel : ObservableObject
     [ObservableProperty] private ControlAppearance upvoteAppearance;
     [ObservableProperty] private ControlAppearance downvoteAppearance;
 
-    public bool CanVote => settingsService.HasValidAccessToken();
+    public bool CanVote => ratingService.CanRate;
 
     public uint Upvotes => selectedModService.SelectedMod?.Stats?.PositiveRatings ?? 0;
     public uint Downvotes => selectedModService.SelectedMod?.Stats?.NegativeRatings ?? 0;
