@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Modio;
+using Serilog;
 using TNRD.Modkist.Factories.Controls;
 using TNRD.Modkist.Factories.ViewModels;
 using TNRD.Modkist.Models;
@@ -39,6 +40,14 @@ public partial class App
     // https://docs.microsoft.com/dotnet/core/extensions/logging
     private static readonly IHost _host = Host
         .CreateDefaultBuilder()
+        .UseSerilog((context, configuration) =>
+        {
+            configuration
+                .MinimumLevel.Verbose()
+                .WriteTo.Console()
+                .MinimumLevel.Information()
+                .WriteTo.File("logs/output.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 3);
+        })
         .ConfigureAppConfiguration(
             c => { c.SetBasePath(Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)); })
         .ConfigureServices((context, services) =>
