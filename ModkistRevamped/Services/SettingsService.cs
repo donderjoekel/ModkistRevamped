@@ -10,7 +10,6 @@ public partial class SettingsService : ObservableObject
     private const string FILE_PATH = "settings.json";
 
     [ObservableProperty] private string zeepkistDirectory = string.Empty;
-    [ObservableProperty] private ApplicationTheme theme = ApplicationTheme.Unknown;
     [ObservableProperty] private AccessToken? accessToken;
     [ObservableProperty] private bool skippedLogin;
     [ObservableProperty] private string selectedProfile = string.Empty;
@@ -28,11 +27,6 @@ public partial class SettingsService : ObservableObject
                 // ignored
             }
         }
-    }
-
-    partial void OnThemeChanged(ApplicationTheme value)
-    {
-        Save();
     }
 
     partial void OnZeepkistDirectoryChanged(string value)

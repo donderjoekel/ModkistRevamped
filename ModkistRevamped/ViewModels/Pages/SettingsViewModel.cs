@@ -20,18 +20,6 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
         this.settingsService = settingsService;
     }
 
-    public ApplicationTheme Theme
-    {
-        get => settingsService.Theme;
-        private set => settingsService.Theme = value;
-    }
-
-    public string SteamDirectory
-    {
-        get => settingsService.ZeepkistDirectory;
-        set => settingsService.ZeepkistDirectory = value;
-    }
-
     public void OnNavigatedTo()
     {
         AppVersion = $"ModkistRevamped - {GetAssemblyVersion()}";
@@ -45,28 +33,5 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
     {
         return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
                ?? string.Empty;
-    }
-
-    [RelayCommand]
-    private void OnChangeTheme(string parameter)
-    {
-        switch (parameter)
-        {
-            case "theme_light":
-                SwitchToTheme(ApplicationTheme.Light);
-                break;
-            default:
-                SwitchToTheme(ApplicationTheme.Dark);
-                break;
-        }
-    }
-
-    private void SwitchToTheme(ApplicationTheme theme)
-    {
-        if (Theme == theme)
-            return;
-
-        ApplicationThemeManager.Apply(theme);
-        Theme = theme;
     }
 }
