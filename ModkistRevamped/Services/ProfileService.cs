@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.ComponentModel;
+using System.IO;
 using Newtonsoft.Json;
 using TNRD.Modkist.Models;
 
@@ -15,6 +16,7 @@ public class ProfileService
     public ProfileService(SettingsService settingsService)
     {
         this.settingsService = settingsService;
+        this.settingsService.PropertyChanged += OnSettingsPropertyChanged;
 
         SetActiveProfile();
     }
@@ -26,6 +28,27 @@ public class ProfileService
 
     public string SelectedProfileId => selectedProfile.Id;
     public ProfileType SelectedProfileType => selectedProfile.Type;
+
+    private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(SettingsService.SkippedLogin))
+            return;
+
+        if (!settingsService.SkippedLogin)
+            return;
+
+        ProfileModel? defaultProfile = GetProfiles().FirstOrDefault(x => x.DisplayName == "Default");
+        if (defaultProfile != null)
+        {
+            SelectProfile(defaultProfile);
+        }
+        else
+        {
+            defaultProfile = AddProfile("Default");
+            settingsService.SelectedProfile = defaultProfile.Id;
+            SetActiveProfile();
+        }
+    }
 
     private void SetActiveProfile()
     {
@@ -50,6 +73,7 @@ public class ProfileService
     private static string GetProfileDirectory()
     {
         string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Modkist",
             "Profiles");
         if (!Directory.Exists(path))
             Directory.CreateDirectory(path);
@@ -82,7 +106,7 @@ public class ProfileService
         return profiles;
     }
 
-    public void AddProfile(string displayName)
+    public ProfileModel AddProfile(string displayName)
     {
         ProfileModel newProfile = new()
         {
@@ -92,6 +116,7 @@ public class ProfileService
         };
 
         SaveProfile(newProfile);
+        return newProfile;
     }
 
     public void SaveProfile(ProfileModel profile)

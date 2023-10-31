@@ -3,8 +3,11 @@
 // Copyright (C) Leszek Pomianowski and WPF UI Contributors.
 // All Rights Reserved.
 
+using System.Diagnostics;
+using System.Reflection;
 using TNRD.Modkist.Services;
-using Wpf.Ui.Appearance;
+using TNRD.Modkist.Views.Pages;
+using Wpf.Ui;
 using Wpf.Ui.Controls;
 
 namespace TNRD.Modkist.ViewModels.Pages;
@@ -12,17 +15,36 @@ namespace TNRD.Modkist.ViewModels.Pages;
 public partial class SettingsViewModel : ObservableObject, INavigationAware
 {
     private readonly SettingsService settingsService;
+    private readonly INavigationService navigationService;
 
-    [ObservableProperty] private string _appVersion = string.Empty;
-
-    public SettingsViewModel(SettingsService settingsService)
+    public SettingsViewModel(SettingsService settingsService, INavigationService navigationService)
     {
         this.settingsService = settingsService;
+        this.navigationService = navigationService;
+
+        UpdateView();
     }
+
+    [ObservableProperty] private string appVersion = string.Empty;
+    [ObservableProperty] private ControlAppearance accountButtonAppearance;
+    [ObservableProperty] private string accountButtonContent = null!;
 
     public void OnNavigatedTo()
     {
-        AppVersion = $"ModkistRevamped - {GetAssemblyVersion()}";
+        UpdateView();
+    }
+
+    private void UpdateView()
+    {
+        AppVersion = $"Modkist - Revamped | {GetAssemblyVersion()}";
+
+        AccountButtonAppearance = settingsService.HasValidAccessToken()
+            ? ControlAppearance.Caution
+            : ControlAppearance.Primary;
+
+        AccountButtonContent = settingsService.HasValidAccessToken()
+            ? "Sign out"
+            : "Sign in";
     }
 
     public void OnNavigatedFrom()
@@ -31,7 +53,25 @@ public partial class SettingsViewModel : ObservableObject, INavigationAware
 
     private string GetAssemblyVersion()
     {
-        return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()
-               ?? string.Empty;
+        return Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? string.Empty;
+    }
+
+    [RelayCommand]
+    private void AccountButtonClicked()
+    {
+        if (settingsService.HasValidAccessToken())
+        {
+            settingsService.AccessToken = null;
+            settingsService.SelectedProfile = string.Empty;
+            settingsService.SkippedLogin = true;
+
+            Process.Start(Environment.ProcessPath!);
+            Application.Current.Shutdown();
+        }
+        else
+        {
+            settingsService.SkippedLogin = false;
+            navigationService.Navigate(typeof(VerifyLoginPage));
+        }
     }
 }
