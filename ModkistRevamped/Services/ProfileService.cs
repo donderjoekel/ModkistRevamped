@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json;
 using TNRD.Modkist.Models;
@@ -47,6 +48,10 @@ public class ProfileService
             defaultProfile = AddProfile("Default");
             settingsService.SelectedProfile = defaultProfile.Id;
             SetActiveProfile();
+
+            // Restart application
+            Process.Start(Environment.ProcessPath!);
+            Application.Current.Shutdown();
         }
     }
 
