@@ -99,6 +99,7 @@ public partial class App
             services.AddSingleton<ProfileListItemViewModelFactory>();
             services.AddSingleton<SideloadListViewModelFactory>();
             services.AddSingleton<SideloadListItemViewModelFactory>();
+            services.AddSingleton<ModCreatorViewModelFactory>();
 
             // Main window and services
             services.AddSingleton<MainWindow>();

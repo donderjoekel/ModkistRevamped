@@ -17,6 +17,7 @@
         <sidebar:ModSubscription />
         <sidebar:ModRatings />
         <sidebar:ModStatistics />
+        <sidebar:ModCreator />
         <sidebar:ModTags />
     </StackPanel>
 </UserControl>
