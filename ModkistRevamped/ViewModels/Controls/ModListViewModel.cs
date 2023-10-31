@@ -1,24 +1,34 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Data;
-using Modio;
-using Modio.Filters;
 using Modio.Models;
+using TNRD.Modkist.Extensions;
 using TNRD.Modkist.Factories.Controls;
 using TNRD.Modkist.Models;
+using TNRD.Modkist.Services;
+using TNRD.Modkist.Services.Subscription;
 using TNRD.Modkist.Views.Controls;
 
 namespace TNRD.Modkist.ViewModels.Controls;
 
 public partial class ModListViewModel : ObservableObject
 {
-    private readonly ModsClient modsClient;
     private readonly ModCardFactory modCardFactory;
+    private readonly ModCachingService modCachingService;
+    private readonly ISubscriptionService subscriptionService;
 
-    public ModListViewModel(ModsClient modsClient, ModCardFactory modCardFactory)
+    public ModListViewModel(
+        ModCardFactory modCardFactory,
+        ModCachingService modCachingService,
+        ISubscriptionService subscriptionService
+    )
     {
-        this.modsClient = modsClient;
         this.modCardFactory = modCardFactory;
+        this.modCachingService = modCachingService;
+        this.subscriptionService = subscriptionService;
+
+        this.subscriptionService.SubscriptionAdded += OnSubscriptionAdded;
+        this.subscriptionService.SubscriptionRemoved += OnSubscriptionRemoved;
 
         collectionView = CollectionViewSource.GetDefaultView(ModCards);
         collectionView.Filter = FilterModCards;
@@ -30,10 +40,37 @@ public partial class ModListViewModel : ObservableObject
     [ObservableProperty] private SortMode sortMode = SortMode.MostPopular;
     [ObservableProperty] private ObservableCollection<ModCard> modCards = new();
     [ObservableProperty] private ICollectionView collectionView;
+    [ObservableProperty] private bool installedOnly;
 
-    async partial void OnModTypeChanged(ModType value)
+    private void OnSubscriptionAdded(Mod mod)
     {
-        List<Mod> mods = await GetOrderedMods();
+        if (!InstalledOnly)
+            return;
+
+        ReloadMods();
+    }
+
+    private void OnSubscriptionRemoved(Mod mod)
+    {
+        if (!InstalledOnly)
+            return;
+
+        ReloadMods();
+    }
+
+    partial void OnModTypeChanged(ModType value)
+    {
+        ReloadMods();
+    }
+
+    partial void OnInstalledOnlyChanged(bool value)
+    {
+        ReloadMods();
+    }
+
+    private void ReloadMods()
+    {
+        List<Mod> mods = GetOrderedMods();
 
         ModCards.Clear();
 
@@ -83,22 +120,20 @@ public partial class ModListViewModel : ObservableObject
         CollectionView.Refresh();
     }
 
-    private async Task<List<Mod>> GetOrderedMods()
+    private List<Mod> GetOrderedMods()
     {
         string tag = ModType switch
         {
-            ModType.None => throw new ArgumentOutOfRangeException(),
+            ModType.None => string.Empty,
             ModType.Plugin => "plugin",
             ModType.Blueprint => "blueprint",
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        List<Mod> mods = new();
-        SearchClient<Mod> searchClient = modsClient.Search(Filter.Custom("tags", Operator.Equal, tag));
-        await foreach (Mod mod in searchClient.ToEnumerable())
-        {
-            mods.Add(mod);
-        }
+        List<Mod> mods = modCachingService
+            .Where(x => x.MatchesTag(tag))
+            .Where(x => !InstalledOnly || subscriptionService.IsSubscribed(x))
+            .ToList();
 
         return mods.OrderByDescending(x => Math.Max(x.DateUpdated, x.DateAdded)).ToList();
     }
@@ -109,5 +144,10 @@ public partial class ModListViewModel : ObservableObject
             return false;
 
         return string.IsNullOrEmpty(Query) || modCard.IsValidForFilter(Query);
+    }
+
+    public void OnNavigatedTo()
+    {
+        ReloadMods();
     }
 }

@@ -13,4 +13,11 @@ public static class ModExtensions
     {
         return mod.Tags.Any(x => string.Equals(x.Name, "Blueprint", StringComparison.OrdinalIgnoreCase));
     }
+
+    public static bool MatchesTag(this Mod mod, string tag, bool returnWhenEmpty = true)
+    {
+        return string.IsNullOrEmpty(tag)
+            ? returnWhenEmpty
+            : mod.Tags.Any(x => string.Equals(x.Name, tag, StringComparison.OrdinalIgnoreCase));
+    }
 }

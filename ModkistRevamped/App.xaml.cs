@@ -159,6 +159,7 @@ public partial class App
             services.AddSingleton<EnterLoginCodePage>().AddSingleton<EnterLoginCodeViewModel>();
             services.AddSingleton<BrowsePluginsPage>();
             services.AddSingleton<BrowseBlueprintsPage>();
+            services.AddSingleton<BrowseLibraryPage>();
             services.AddTransient<ModDetailsPage>().AddTransient<ModDetailsViewModel>();
             services.AddSingleton<ProfilesPage>();
             services.AddSingleton<SideloadPage>();

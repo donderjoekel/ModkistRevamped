@@ -21,6 +21,20 @@ public partial class ModList : UserControl
         modList.ViewModel.ModType = (ModType)e.NewValue;
     }
 
+    public static readonly DependencyProperty InstalledOnlyProperty = DependencyProperty.Register(
+        nameof(InstalledOnly),
+        typeof(bool),
+        typeof(ModList),
+        new PropertyMetadata(default(bool), InstalledOnlyChanged));
+
+    private static void InstalledOnlyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not ModList modList)
+            return;
+
+        modList.ViewModel.InstalledOnly = (bool)e.NewValue;
+    }
+
     public ModList()
     {
         ViewModel = App.GetService<ModListViewModelFactory>().Create();
@@ -35,5 +49,11 @@ public partial class ModList : UserControl
     {
         get => (ModType)GetValue(ModTypeProperty);
         set => SetValue(ModTypeProperty, value);
+    }
+
+    public bool InstalledOnly
+    {
+        get => (bool)GetValue(InstalledOnlyProperty);
+        set => SetValue(InstalledOnlyProperty, value);
     }
 }
