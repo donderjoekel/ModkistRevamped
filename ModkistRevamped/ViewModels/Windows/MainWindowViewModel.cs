@@ -20,7 +20,7 @@ public partial class MainWindowViewModel : ObservableObject
         new NavigationViewItem("Mods", SymbolRegular.WrenchScrewdriver24, typeof(BrowsePluginsPage)),
         new NavigationViewItem("Blueprints", SymbolRegular.PuzzlePiece24, typeof(BrowseBlueprintsPage)),
         new NavigationViewItemSeparator(),
-        new NavigationViewItem("Library", SymbolRegular.Library24, typeof(BrowseLibraryPage)),
+        new NavigationViewItem("Installed", SymbolRegular.Library24, typeof(BrowseLibraryPage)),
         new NavigationViewItemSeparator(),
         new NavigationViewItem("Sideload", SymbolRegular.Toolbox24, typeof(SideloadPage)),
         new NavigationViewItemSeparator(),
