@@ -50,9 +50,6 @@ public class RemoveModJob : JobBase
     {
         try
         {
-            if (!subscriptionService.IsSubscribed(modId))
-                return false; // Early out if not subscribed
-
             Mod mod = await modsClient[modId].Get();
             installationService.UninstallMod(mod);
 
