@@ -4,6 +4,7 @@
 // All Rights Reserved.
 
 using System.Collections.ObjectModel;
+using TNRD.Modkist.Views.Controls;
 using TNRD.Modkist.Views.Pages;
 using Wpf.Ui.Controls;
 
@@ -27,6 +28,8 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<object> _footerMenuItems = new()
     {
+        new PlayZeepkistNavigationViewItem(),
+        new NavigationViewItemSeparator(),
         new NavigationViewItem("Settings", SymbolRegular.Settings24, typeof(SettingsPage))
     };
 

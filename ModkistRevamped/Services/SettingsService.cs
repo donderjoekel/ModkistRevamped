@@ -7,8 +7,6 @@ namespace TNRD.Modkist.Services;
 
 public partial class SettingsService : ObservableObject
 {
-    private const string FILE_PATH = "settings.json";
-
     [ObservableProperty] private string zeepkistDirectory = string.Empty;
     [ObservableProperty] private AccessToken? accessToken;
     [ObservableProperty] private bool skippedLogin;
@@ -16,17 +14,31 @@ public partial class SettingsService : ObservableObject
 
     public SettingsService()
     {
-        if (File.Exists(FILE_PATH))
+        if (File.Exists(GetSettingsPath()))
         {
             try
             {
-                JsonConvert.PopulateObject(File.ReadAllText(FILE_PATH), this);
+                JsonConvert.PopulateObject(File.ReadAllText(GetSettingsPath()), this);
             }
             catch (Exception)
             {
                 // ignored
             }
         }
+    }
+
+    private string GetSettingsPath()
+    {
+        string settingsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Modkist",
+            "settings.json");
+
+        string directoryName = Path.GetDirectoryName(settingsPath)!;
+
+        if (!Directory.Exists(directoryName))
+            Directory.CreateDirectory(directoryName);
+
+        return settingsPath;
     }
 
     partial void OnZeepkistDirectoryChanged(string value)
@@ -51,7 +63,7 @@ public partial class SettingsService : ObservableObject
 
     private void Save()
     {
-        File.WriteAllText(FILE_PATH, JsonConvert.SerializeObject(this, Formatting.Indented));
+        File.WriteAllText(GetSettingsPath(), JsonConvert.SerializeObject(this, Formatting.Indented));
     }
 
     public bool HasValidAccessToken()

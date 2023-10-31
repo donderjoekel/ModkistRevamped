@@ -14,13 +14,15 @@ public class VerifyLoginViewModel : ObservableObject, INavigationAware
     private readonly ISubscriptionService subscriptionService;
     private readonly IRatingService ratingService;
     private readonly DependenciesService dependenciesService;
+    private readonly ModCachingService modCachingService;
 
     public VerifyLoginViewModel(
         SettingsService settingsService,
         INavigationService navigationService,
         ISubscriptionService subscriptionService,
         IRatingService ratingService,
-        DependenciesService dependenciesService
+        DependenciesService dependenciesService,
+        ModCachingService modCachingService
     )
     {
         this.settingsService = settingsService;
@@ -28,13 +30,15 @@ public class VerifyLoginViewModel : ObservableObject, INavigationAware
         this.subscriptionService = subscriptionService;
         this.ratingService = ratingService;
         this.dependenciesService = dependenciesService;
+        this.modCachingService = modCachingService;
     }
 
     async void INavigationAware.OnNavigatedTo()
     {
+        await modCachingService.Initialize();
+        await dependenciesService.Initialize();
         await ratingService.Initialize();
         await subscriptionService.Initialize();
-        await dependenciesService.Initialize();
 
         if (settingsService.HasValidAccessToken() || settingsService.SkippedLogin)
         {

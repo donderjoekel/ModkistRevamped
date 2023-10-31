@@ -62,7 +62,8 @@ public partial class SideloadListViewModel : ObservableObject
         OpenFileDialog ofd = new()
         {
             Multiselect = false,
-            Filter = "dll files (*.dll)|*.dll|zip files (*.zip)|*.zip|All files (*.*)|*.*",
+            Filter =
+                "dll files (*.dll)|*.dll|zip files (*.zip)|*.zip|zeeplevel blueprint files (*.zeeplevel)|*.zeeplevel|All files (*.*)|*.*",
             Title = "Select mod to side-load"
         };
 

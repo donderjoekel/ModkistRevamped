@@ -15,6 +15,7 @@ public class LocalSubscriptionService : ISubscriptionService
     private readonly ProfileService profileService;
     private readonly SnackbarQueueService snackbarQueueService;
     private readonly ILogger<LocalSubscriptionService> logger;
+    private readonly ModCachingService modCachingService;
 
     private readonly List<Mod> subscriptions = new();
 
@@ -22,13 +23,15 @@ public class LocalSubscriptionService : ISubscriptionService
         ModsClient modsClient,
         ProfileService profileService,
         SnackbarQueueService snackbarQueueService,
-        ILogger<LocalSubscriptionService> logger
+        ILogger<LocalSubscriptionService> logger,
+        ModCachingService modCachingService
     )
     {
         this.modsClient = modsClient;
         this.profileService = profileService;
         this.snackbarQueueService = snackbarQueueService;
         this.logger = logger;
+        this.modCachingService = modCachingService;
     }
 
     public bool CanSubscribe => true;
@@ -66,8 +69,7 @@ public class LocalSubscriptionService : ISubscriptionService
 
         try
         {
-            IReadOnlyList<Mod> mods = await modsClient.Search().ToList();
-            subscriptions.AddRange(mods.Where(x => localSubscriptions.SubscribedModIds.Contains(x.Id)));
+            subscriptions.AddRange(localSubscriptions.SubscribedModIds.Select(x => modCachingService[x]));
 
             if (notify)
                 SubscriptionsLoaded?.Invoke();
@@ -98,28 +100,25 @@ public class LocalSubscriptionService : ISubscriptionService
         return subscriptions.Any(x => x.Id == modId);
     }
 
-    public Task<bool> Subscribe(Mod mod)
-    {
-        return Subscribe(mod.Id);
-    }
-
-    public async Task<bool> Subscribe(uint modId)
+    public async Task<bool> Subscribe(Mod mod)
     {
         try
         {
             LocalSubscriptionsModel localSubscriptions = GetLocalSubscriptions();
-            if (localSubscriptions.SubscribedModIds.Contains(modId))
+            if (localSubscriptions.SubscribedModIds.Contains(mod.Id))
                 return true;
 
-            localSubscriptions.SubscribedModIds.Add(modId);
+            localSubscriptions.SubscribedModIds.Add(mod.Id);
+
             SaveLocalSubscriptions(localSubscriptions);
             await Initialize(false);
-            SubscriptionAdded?.Invoke(modId);
 
-            IReadOnlyList<Dependency> dependencies = await modsClient[modId].Dependencies.Get();
+            SubscriptionAdded?.Invoke(mod);
+
+            IReadOnlyList<Dependency> dependencies = await modsClient[mod.Id].Dependencies.Get();
             foreach (Dependency dependency in dependencies)
             {
-                await Subscribe(dependency.ModId);
+                await Subscribe(modCachingService[dependency.ModId]);
             }
 
             return true;
@@ -132,31 +131,18 @@ public class LocalSubscriptionService : ISubscriptionService
         }
     }
 
-    public Task<bool> Unsubscribe(Mod mod)
+    public async Task<bool> Unsubscribe(Mod mod)
     {
-        return Unsubscribe(mod.Id);
-    }
+        LocalSubscriptionsModel localSubscriptions = GetLocalSubscriptions();
 
-    public async Task<bool> Unsubscribe(uint modId)
-    {
-        try
+        if (localSubscriptions.SubscribedModIds.Remove(mod.Id))
         {
-            LocalSubscriptionsModel localSubscriptions = GetLocalSubscriptions();
-            if (localSubscriptions.SubscribedModIds.Remove(modId))
-            {
-                SaveLocalSubscriptions(localSubscriptions);
-                await Initialize(false);
-                SubscriptionRemoved?.Invoke(modId);
-            }
+            SaveLocalSubscriptions(localSubscriptions);
+            await Initialize(false);
+            SubscriptionRemoved?.Invoke(mod);
+        }
 
-            return true;
-        }
-        catch (RateLimitExceededException)
-        {
-            snackbarQueueService.EnqueueRateLimitMessage();
-            logger.LogWarning("Being rate limited!");
-            return false;
-        }
+        return true;
     }
 
     public IEnumerable<Mod> GetSubscribedMods()

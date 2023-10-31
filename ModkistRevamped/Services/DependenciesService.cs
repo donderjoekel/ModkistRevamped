@@ -1,100 +1,70 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.IO;
 using Modio;
 using Modio.Models;
+using Newtonsoft.Json;
+using TNRD.Modkist.Models;
 using TNRD.Modkist.Services.Subscription;
+using File = System.IO.File;
 
 namespace TNRD.Modkist.Services;
 
 public class DependenciesService
 {
-    public delegate void DependencyAddedDelegate(uint dependencyId);
-
-    public delegate void DependencyRemovedDelegate(uint dependencyId);
-
-    private readonly ISubscriptionService subscriptionService;
-    private readonly ModsClient modsClient;
-    private readonly SnackbarQueueService snackbarQueueService;
-    private readonly ILogger<DependenciesService> logger;
     private readonly Dictionary<uint, HashSet<uint>> dependencyIdToModIds = new();
+    private readonly ModsClient modsClient;
+    private readonly ModCachingService modCachingService;
+    private readonly ISubscriptionService subscriptionService;
 
     public DependenciesService(
-        ISubscriptionService subscriptionService,
         ModsClient modsClient,
-        SnackbarQueueService snackbarQueueService,
-        ILogger<DependenciesService> logger
+        ModCachingService modCachingService,
+        ISubscriptionService subscriptionService
     )
     {
-        this.subscriptionService = subscriptionService;
         this.modsClient = modsClient;
-        this.snackbarQueueService = snackbarQueueService;
-        this.logger = logger;
-
-        this.subscriptionService.SubscriptionAdded += OnSubscriptionAdded;
-        this.subscriptionService.SubscriptionRemoved += OnSubscriptionRemoved;
+        this.modCachingService = modCachingService;
+        this.subscriptionService = subscriptionService;
     }
-
-    public event DependencyAddedDelegate? DependencyAdded;
-    public event DependencyRemovedDelegate? DependencyRemoved;
 
     public async Task Initialize()
     {
-        IEnumerable<Mod> subscribedMods = subscriptionService.GetSubscribedMods();
+        dependencyIdToModIds.Clear();
 
-        foreach (Mod subscribedMod in subscribedMods)
+        List<uint> modsToCheck = new();
+        List<DependencyModel> dependencyModels = LoadDependenciesFromDisk();
+
+        foreach (Mod mod in modCachingService)
         {
-            try
-            {
-                IReadOnlyList<Dependency> dependencies = await modsClient[subscribedMod.Id].Dependencies.Get();
-                foreach (Dependency dependency in dependencies)
-                {
-                    dependencyIdToModIds.TryAdd(dependency.ModId, new HashSet<uint>());
-                    if (dependencyIdToModIds[dependency.ModId].Add(subscribedMod.Id))
-                    {
-                        DependencyAdded?.Invoke(dependency.ModId);
-                    }
-                }
-            }
-            catch (RateLimitExceededException)
-            {
-                snackbarQueueService.EnqueueRateLimitMessage();
-                logger.LogWarning("Being rate limited!");
+            DependencyModel? dependency = dependencyModels.FirstOrDefault(x => x.ModId == mod.Id);
 
-                // Early out here because of the rate limiting
-                return;
+            if (dependency == null)
+            {
+                modsToCheck.Add(mod.Id);
+            }
+            else if (mod.DateUpdated > dependency.Stamp)
+            {
+                modsToCheck.Add(mod.Id);
+            }
+            else
+            {
+                dependencyIdToModIds.Add(mod.Id, dependency.Dependencies);
             }
         }
-    }
 
-    private async void OnSubscriptionAdded(uint modId)
-    {
-        try
+        foreach (uint modId in modsToCheck)
         {
             IReadOnlyList<Dependency> dependencies = await modsClient[modId].Dependencies.Get();
+
+            HashSet<uint> dependencyIds = new();
             foreach (Dependency dependency in dependencies)
             {
-                dependencyIdToModIds.TryAdd(dependency.ModId, new HashSet<uint>());
-                if (dependencyIdToModIds[dependency.ModId].Add(modId))
-                {
-                    DependencyAdded?.Invoke(dependency.ModId);
-                }
+                dependencyIds.Add(dependency.ModId);
             }
-        }
-        catch (RateLimitExceededException)
-        {
-            snackbarQueueService.EnqueueRateLimitMessage();
-            logger.LogWarning("Being rate limited!");
-        }
-    }
 
-    private void OnSubscriptionRemoved(uint modId)
-    {
-        foreach (KeyValuePair<uint, HashSet<uint>> kvp in dependencyIdToModIds)
-        {
-            if (kvp.Value.Remove(modId))
-            {
-                DependencyRemoved?.Invoke(kvp.Key);
-            }
+            dependencyIdToModIds.Add(modId, dependencyIds);
         }
+
+        SaveDependenciesToDisk();
     }
 
     public bool IsDependency(Mod mod)
@@ -104,13 +74,76 @@ public class DependenciesService
 
     public bool IsDependency(uint modId)
     {
-        if (dependencyIdToModIds.TryGetValue(modId, out HashSet<uint>? dependencyIds))
-            return dependencyIds.Count > 0;
-        return false;
+        IEnumerable<KeyValuePair<uint, HashSet<uint>>> kvps = dependencyIdToModIds.Where(x => x.Value.Contains(modId));
+        return kvps.Any(kvp => subscriptionService.IsSubscribed(kvp.Key));
+    }
+
+    public List<Mod> GetDependingMods(Mod mod)
+    {
+        return GetDependingMods(mod.Id);
+    }
+
+    public List<Mod> GetDependingMods(uint modId)
+    {
+        List<uint> dependingModIds = new();
+
+        foreach (KeyValuePair<uint, HashSet<uint>> kvp in dependencyIdToModIds)
+        {
+            if (kvp.Value.Contains(modId))
+            {
+                dependingModIds.Add(kvp.Key);
+            }
+        }
+
+        return dependingModIds.Distinct().Select(x => modCachingService[x]).ToList();
+    }
+
+    public List<Mod> GetDependencies(Mod mod)
+    {
+        return GetDependencies(mod.Id);
+    }
+
+    public List<Mod> GetDependencies(uint modId)
+    {
+        if (!dependencyIdToModIds.TryGetValue(modId, out HashSet<uint>? dependencyIds))
+        {
+            return new List<Mod>();
+        }
+
+        return dependencyIds.Select(x => modCachingService[x]).ToList();
     }
 
     public IReadOnlyList<uint> GetAllDependencies()
     {
         return dependencyIdToModIds.Keys.ToList();
+    }
+
+    private List<DependencyModel> LoadDependenciesFromDisk()
+    {
+        string dependenciesPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Modkist",
+            "dependencies.json");
+
+        if (!File.Exists(dependenciesPath))
+        {
+            return JsonConvert.DeserializeObject<List<DependencyModel>>(PreloadedDependencies.Value)!;
+        }
+
+        string json = File.ReadAllText(dependenciesPath);
+        return JsonConvert.DeserializeObject<List<DependencyModel>>(json)!;
+    }
+
+    private void SaveDependenciesToDisk()
+    {
+        string dependenciesPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Modkist",
+            "dependencies.json");
+
+        List<DependencyModel> dependencyModels = dependencyIdToModIds
+            .Select(x => new DependencyModel(x.Key, modCachingService[x.Key].DateUpdated, x.Value)).ToList();
+        string json = JsonConvert.SerializeObject(dependencyModels, Formatting.Indented);
+        File.WriteAllText(dependenciesPath, json);
     }
 }

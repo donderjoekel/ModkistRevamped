@@ -6,6 +6,7 @@
 using TNRD.Modkist.ViewModels.Windows;
 using Wpf.Ui;
 using Wpf.Ui.Appearance;
+using Wpf.Ui.Controls;
 
 namespace TNRD.Modkist.Views.Windows;
 
@@ -21,7 +22,7 @@ public partial class MainWindow
         IContentDialogService contentDialogService
     )
     {
-        SystemThemeWatcher.Watch(this);
+        ApplicationThemeManager.Apply(ApplicationTheme.Dark, WindowBackdropType.Mica, false);
 
         ViewModel = viewModel;
         DataContext = this;

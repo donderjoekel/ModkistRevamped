@@ -11,6 +11,7 @@ public class RemoteSubscriptionService : ISubscriptionService
     private readonly ModsClient modsClient;
     private readonly SnackbarQueueService snackbarQueueService;
     private readonly ILogger<RemoteSubscriptionService> logger;
+    private readonly ModCachingService modCachingService;
 
     private readonly List<Mod> subscriptions = new();
 
@@ -19,7 +20,8 @@ public class RemoteSubscriptionService : ISubscriptionService
         SettingsService settingsService,
         ModsClient modsClient,
         SnackbarQueueService snackbarQueueService,
-        ILogger<RemoteSubscriptionService> logger
+        ILogger<RemoteSubscriptionService> logger,
+        ModCachingService modCachingService
     )
     {
         this.userClient = userClient;
@@ -27,6 +29,7 @@ public class RemoteSubscriptionService : ISubscriptionService
         this.modsClient = modsClient;
         this.snackbarQueueService = snackbarQueueService;
         this.logger = logger;
+        this.modCachingService = modCachingService;
     }
 
     public bool CanSubscribe => true;
@@ -69,26 +72,21 @@ public class RemoteSubscriptionService : ISubscriptionService
         return subscriptions.Any(x => x.Id == modId);
     }
 
-    public Task<bool> Subscribe(Mod mod)
-    {
-        return Subscribe(mod.Id);
-    }
-
-    public async Task<bool> Subscribe(uint modId)
+    public async Task<bool> Subscribe(Mod mod)
     {
         try
         {
-            await modsClient[modId].Subscribe();
+            await modsClient[mod.Id].Subscribe();
             await Initialize(false);
-            SubscriptionAdded?.Invoke(modId);
+            SubscriptionAdded?.Invoke(mod);
 
-            IReadOnlyList<Dependency> dependencies = await modsClient[modId].Dependencies.Get();
+            IReadOnlyList<Dependency> dependencies = await modsClient[mod.Id].Dependencies.Get();
             foreach (Dependency dependency in dependencies)
             {
                 if (subscriptions.Any(x => x.Id == dependency.ModId))
                     continue;
 
-                await Subscribe(dependency.ModId);
+                await Subscribe(modCachingService[dependency.ModId]);
             }
 
             return true;
@@ -101,18 +99,13 @@ public class RemoteSubscriptionService : ISubscriptionService
         }
     }
 
-    public Task<bool> Unsubscribe(Mod mod)
-    {
-        return Unsubscribe(mod.Id);
-    }
-
-    public async Task<bool> Unsubscribe(uint modId)
+    public async Task<bool> Unsubscribe(Mod mod)
     {
         try
         {
-            await modsClient[modId].Unsubscribe();
+            await modsClient[mod.Id].Unsubscribe();
             await Initialize(false);
-            SubscriptionRemoved?.Invoke(modId);
+            SubscriptionRemoved?.Invoke(mod);
             return true;
         }
         catch (RateLimitExceededException)

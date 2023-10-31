@@ -117,6 +117,7 @@ public partial class App
             services.AddSingleton<SnackbarQueueService>();
             services.AddSingleton<DependenciesService>();
             services.AddSingleton<SideloadService>();
+            services.AddSingleton<ModCachingService>();
 
             services.AddSingleton<RemoteRatingService>();
             services.AddSingleton<StubRatingService>();

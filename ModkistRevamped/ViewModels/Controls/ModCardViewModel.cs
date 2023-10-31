@@ -38,9 +38,6 @@ public partial class ModCardViewModel : ObservableObject
         this.subscriptionService.SubscriptionAdded += OnSubscriptionAdded;
         this.subscriptionService.SubscriptionRemoved += OnSubscriptionRemoved;
 
-        this.dependenciesService.DependencyAdded += OnDependencyAdded;
-        this.dependenciesService.DependencyRemoved += OnDependencyRemoved;
-
         Mod = mod;
         Title = Mod.Name!;
         UpdateView();
@@ -107,35 +104,13 @@ public partial class ModCardViewModel : ObservableObject
             : subscriptionService.CanSubscribe;
     }
 
-    private void OnSubscriptionAdded(uint modId)
+    private void OnSubscriptionAdded(Mod mod)
     {
-        if (Mod.Id != modId)
-            return;
-
         UpdateView();
     }
 
-    private void OnSubscriptionRemoved(uint modId)
+    private void OnSubscriptionRemoved(Mod mod)
     {
-        if (Mod.Id != modId)
-            return;
-
-        UpdateView();
-    }
-
-    private void OnDependencyAdded(uint dependencyId)
-    {
-        if (Mod.Id != dependencyId)
-            return;
-
-        UpdateView();
-    }
-
-    private void OnDependencyRemoved(uint dependencyId)
-    {
-        if (Mod.Id != dependencyId)
-            return;
-
         UpdateView();
     }
 }

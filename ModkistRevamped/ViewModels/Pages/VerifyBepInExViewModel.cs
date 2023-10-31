@@ -47,16 +47,7 @@ public class VerifyBepInExViewModel : ObservableObject, INavigationAware
     {
         if (HasBepInEx())
         {
-            if (HasExistingMods())
-            {
-                await contentDialogService.ShowAlertAsync("Existing mods found",
-                    "It seems you have existing mods installed from a previous version of Modkist, moving them to BepInEx/plugins_backup.\n" +
-                    "If you want to add them again, use the side-load function!",
-                    "OK");
-
-                MoveExistingModsToBackupFolder();
-            }
-
+            await BackupExistingMods();
             await Task.Delay(Random.Shared.Next(1000, 1500)); // Artificial delay to make it feel better
             navigationService.Navigate(typeof(VerifyLoginPage));
             return;
@@ -79,8 +70,22 @@ public class VerifyBepInExViewModel : ObservableObject, INavigationAware
             return;
         }
 
+        await BackupExistingMods();
         await Task.Delay(Random.Shared.Next(250, 500));
         navigationService.Navigate(typeof(VerifyLoginPage));
+    }
+
+    private async Task BackupExistingMods()
+    {
+        if (HasExistingMods())
+        {
+            await contentDialogService.ShowAlertAsync("Existing mods found",
+                "It seems you have existing mods installed from a previous version of Modkist, moving them to BepInEx/plugins_backup.\n" +
+                "If you want to add them again, use the side-load function!",
+                "OK");
+
+            MoveExistingModsToBackupFolder();
+        }
     }
 
     private bool HasBepInEx()

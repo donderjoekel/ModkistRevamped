@@ -4,30 +4,37 @@ using Wpf.Ui.Controls;
 
 namespace TNRD.Modkist.Jobs;
 
-public class RemoveModJob : JobBase
+public class RemoveModsJob : JobBase
 {
+    private readonly Mod[] mods;
     private readonly InstallationService installationService;
     private readonly SnackbarQueueService snackbarQueueService;
-    private readonly Mod mod;
 
-    public RemoveModJob(
+    public RemoveModsJob(
         InstallationService installationService,
         SnackbarQueueService snackbarQueueService,
-        Mod mod
+        Mod[] mods
     )
     {
         this.installationService = installationService;
         this.snackbarQueueService = snackbarQueueService;
-        this.mod = mod;
+        this.mods = mods;
     }
 
-    public override async Task ExecuteAsync(CancellationToken cancellationToken)
+    public override Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        installationService.UninstallMod(mod);
+        snackbarQueueService.Enqueue("Remove", $"Removing {mods.Length} mods...");
+
+        foreach (Mod mod in mods)
+        {
+            installationService.UninstallMod(mod);
+        }
 
         snackbarQueueService.Enqueue("Remove",
-            $"'{mod.Name}' has been removed!",
+            $"Removed {mods.Length} mods!",
             ControlAppearance.Secondary,
             new SymbolIcon(SymbolRegular.Delete24));
+
+        return Task.CompletedTask;
     }
 }

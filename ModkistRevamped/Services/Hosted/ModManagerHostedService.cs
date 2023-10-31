@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Modio.Models;
 using TNRD.Modkist.Jobs;
 using TNRD.Modkist.Services.Subscription;
 
@@ -28,14 +29,14 @@ public class ModManagerHostedService : BackgroundService
         jobs.Enqueue(verifyModsJob);
     }
 
-    private void OnSubscriptionAdded(uint modId)
+    private void OnSubscriptionAdded(Mod mod)
     {
-        EnqueueAddModJob(modId);
+        EnqueueAddModJob(mod);
     }
 
-    private void OnSubscriptionRemoved(uint modId)
+    private void OnSubscriptionRemoved(Mod mod)
     {
-        EnqueueRemoveModJob(modId);
+        EnqueueRemoveModJob(mod);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -59,21 +60,42 @@ public class ModManagerHostedService : BackgroundService
         }
     }
 
-    public void EnqueueAddModJob(uint modId)
+    public void EnqueueAddModJob(Mod mod)
     {
-        AddModJob addModJob = ActivatorUtilities.CreateInstance<AddModJob>(serviceProvider, modId);
+        AddModJob addModJob = ActivatorUtilities.CreateInstance<AddModJob>(serviceProvider, mod);
         jobs.Enqueue(addModJob);
     }
 
-    public void EnqueueRemoveModJob(uint modId)
+    public void EnqueueAddModsJob(Mod[] mods)
     {
-        RemoveModJob removeModJob = ActivatorUtilities.CreateInstance<RemoveModJob>(serviceProvider, modId);
+        AddModsJob addModsJob = ActivatorUtilities.CreateInstance<AddModsJob>(serviceProvider,
+            new object[] { mods });
+        jobs.Enqueue(addModsJob);
+    }
+
+    public void EnqueueRemoveModJob(Mod mod)
+    {
+        RemoveModJob removeModJob = ActivatorUtilities.CreateInstance<RemoveModJob>(serviceProvider, mod);
         jobs.Enqueue(removeModJob);
     }
 
-    public void EnqueueUpdateModJob(uint modId)
+    public void EnqueueRemoveModsJob(Mod[] mods)
     {
-        UpdateModJob updateModJob = ActivatorUtilities.CreateInstance<UpdateModJob>(serviceProvider, modId);
+        RemoveModsJob removeModsJob =
+            ActivatorUtilities.CreateInstance<RemoveModsJob>(serviceProvider, new object[] { mods });
+        jobs.Enqueue(removeModsJob);
+    }
+
+    public void EnqueueUpdateModJob(Mod mod)
+    {
+        UpdateModJob updateModJob = ActivatorUtilities.CreateInstance<UpdateModJob>(serviceProvider, mod);
         jobs.Enqueue(updateModJob);
+    }
+
+    public void EnqueueUpdateModsJob(Mod[] mods)
+    {
+        UpdateModsJob updateModsJob =
+            ActivatorUtilities.CreateInstance<UpdateModsJob>(serviceProvider, new object[] { mods });
+        jobs.Enqueue(updateModsJob);
     }
 }
