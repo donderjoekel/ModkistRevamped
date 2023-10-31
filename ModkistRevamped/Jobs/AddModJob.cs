@@ -40,10 +40,10 @@ public class AddModJob : JobBase
     {
         try
         {
-            if (subscriptionService.IsSubscribed(modId))
-                return; // Early out if already subscribed
-
             Mod mod = await modsClient[modId].Get();
+
+            if (subscriptionService.IsSubscribed(modId) && installationService.IsInstalled(mod))
+                return;
 
             string? downloadedFilePath = await downloadService.DownloadMod(mod);
 

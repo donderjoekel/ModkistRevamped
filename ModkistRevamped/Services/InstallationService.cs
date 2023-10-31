@@ -140,4 +140,9 @@ public class InstallationService
             Directory.Delete(directory, true);
         }
     }
+
+    public bool IsInstalled(Mod mod)
+    {
+        return mod.Modfile != null && GetInstalledMods().Any(x => x.ModId == mod.Id && x.ModVersion == mod.Modfile.Id);
+    }
 }
