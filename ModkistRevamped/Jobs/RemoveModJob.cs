@@ -21,7 +21,7 @@ public class RemoveModJob : JobBase
         this.mod = mod;
     }
 
-    public override async Task ExecuteAsync(CancellationToken cancellationToken)
+    public override Task ExecuteAsync(CancellationToken cancellationToken)
     {
         installationService.UninstallMod(mod);
 
@@ -29,5 +29,7 @@ public class RemoveModJob : JobBase
             $"'{mod.Name}' has been removed!",
             ControlAppearance.Secondary,
             new SymbolIcon(SymbolRegular.Delete24));
+
+        return Task.CompletedTask;
     }
 }

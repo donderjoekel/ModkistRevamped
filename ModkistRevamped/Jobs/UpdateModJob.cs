@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Modio;
-using Modio.Models;
+﻿using Modio.Models;
 using TNRD.Modkist.Services;
 using Wpf.Ui.Controls;
 
@@ -8,60 +6,44 @@ namespace TNRD.Modkist.Jobs;
 
 public class UpdateModJob : JobBase
 {
-    private readonly uint modId;
-    private readonly ModsClient modsClient;
     private readonly InstallationService installationService;
     private readonly DownloadService downloadService;
     private readonly SnackbarQueueService snackbarQueueService;
-    private readonly ILogger<UpdateModJob> logger;
+    private readonly Mod mod;
 
     public UpdateModJob(
-        uint modId,
-        ModsClient modsClient,
         InstallationService installationService,
         DownloadService downloadService,
         SnackbarQueueService snackbarQueueService,
-        ILogger<UpdateModJob> logger
+        Mod mod
     )
     {
-        this.modId = modId;
-        this.modsClient = modsClient;
         this.installationService = installationService;
         this.downloadService = downloadService;
         this.snackbarQueueService = snackbarQueueService;
-        this.logger = logger;
+        this.mod = mod;
     }
 
     public override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        try
+        string? downloadedFilePath = await downloadService.DownloadMod(mod);
+
+        if (string.IsNullOrEmpty(downloadedFilePath))
         {
-            Mod mod = await modsClient[modId].Get();
-
-            string? downloadedFilePath = await downloadService.DownloadMod(mod);
-
-            if (string.IsNullOrEmpty(downloadedFilePath))
-            {
-                snackbarQueueService.Enqueue("Update",
-                    $"Unable to update '{mod.Name}'",
-                    ControlAppearance.Caution,
-                    new SymbolIcon(SymbolRegular.Warning24));
-
-                return;
-            }
-
-            installationService.UninstallMod(mod);
-            installationService.InstallMod(mod, downloadedFilePath);
-
             snackbarQueueService.Enqueue("Update",
-                $"'{mod.Name}' has been updated!",
-                ControlAppearance.Secondary,
-                new SymbolIcon(SymbolRegular.Checkmark24));
+                $"Unable to update '{mod.Name}'",
+                ControlAppearance.Caution,
+                new SymbolIcon(SymbolRegular.Warning24));
+
+            return;
         }
-        catch (RateLimitExceededException)
-        {
-            snackbarQueueService.EnqueueRateLimitMessage();
-            logger.LogWarning("Being rate limited!");
-        }
+
+        installationService.UninstallMod(mod);
+        installationService.InstallMod(mod, downloadedFilePath);
+
+        snackbarQueueService.Enqueue("Update",
+            $"'{mod.Name}' has been updated!",
+            ControlAppearance.Secondary,
+            new SymbolIcon(SymbolRegular.Checkmark24));
     }
 }

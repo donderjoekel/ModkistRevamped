@@ -26,7 +26,7 @@ public class UpdateModsJob : JobBase
 
     public override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        snackbarQueueService.Enqueue("Update", "Updating {mods.Length} mods...");
+        snackbarQueueService.Enqueue("Update", $"Updating {mods.Length} mods...");
 
         int amountFailed = 0;
         int amountUpdated = 0;

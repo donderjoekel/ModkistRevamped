@@ -65,19 +65,31 @@ public class VerifyModsJob : JobBase
             }
         }
 
-        if (modsToAdd.Count > 0)
+        if (modsToAdd.Count > 1)
         {
             modManagerHostedService.EnqueueAddModsJob(modsToAdd.ToArray());
         }
+        else if (modsToAdd.Count == 1)
+        {
+            modManagerHostedService.EnqueueAddModJob(modsToAdd.First());
+        }
 
-        if (modsToRemove.Count > 0)
+        if (modsToRemove.Count > 1)
         {
             modManagerHostedService.EnqueueRemoveModsJob(modsToRemove.ToArray());
         }
+        else if (modsToRemove.Count == 1)
+        {
+            modManagerHostedService.EnqueueRemoveModJob(modsToRemove.First());
+        }
 
-        if (modsToUpdate.Count > 0)
+        if (modsToUpdate.Count > 1)
         {
             modManagerHostedService.EnqueueUpdateModsJob(modsToUpdate.ToArray());
+        }
+        else if (modsToUpdate.Count == 1)
+        {
+            modManagerHostedService.EnqueueUpdateModJob(modsToUpdate.First());
         }
     }
 
