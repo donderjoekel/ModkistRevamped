@@ -21,16 +21,42 @@ public class SideloadService
     public event ModSideloadedDelegate? ModSideloaded;
     public event SideloadedModRemovedDelegate? SideloadedModRemoved;
 
-    public List<SideloadedModModel> GetSideloadedMods()
+    public List<SideloadedModModel> GetSideloadedPlugins()
+    {
+        return GetSideloadedMods(ModType.Plugin);
+    }
+
+    public List<SideloadedModModel> GetSideloadedBlueprints()
+    {
+        return GetSideloadedMods(ModType.Blueprint);
+    }
+
+    private List<SideloadedModModel> GetSideloadedMods(ModType modType)
     {
         string sideloadedDirectory =
-            Path.Combine(settingsService.ZeepkistDirectory, "BepInEx", "plugins", "Sideloaded");
+            Path.Combine(settingsService.ZeepkistDirectory,
+                "BepInEx",
+                "plugins",
+                "Sideloaded",
+                modType == ModType.Plugin ? "Plugins" : "Blueprints");
         if (!Directory.Exists(sideloadedDirectory))
             Directory.CreateDirectory(sideloadedDirectory);
 
         List<string> paths = new();
         paths.AddRange(Directory.GetDirectories(sideloadedDirectory, "*", SearchOption.TopDirectoryOnly));
-        paths.AddRange(Directory.GetFiles(sideloadedDirectory, "*.dll", SearchOption.TopDirectoryOnly));
+
+        switch (modType)
+        {
+            case ModType.Plugin:
+                paths.AddRange(Directory.GetFiles(sideloadedDirectory, "*.dll", SearchOption.TopDirectoryOnly));
+                break;
+            case ModType.Blueprint:
+                paths.AddRange(Directory.GetFiles(sideloadedDirectory, "*.zeeplevel", SearchOption.TopDirectoryOnly));
+                break;
+            case ModType.None:
+            default:
+                throw new ArgumentOutOfRangeException(nameof(modType), modType, null);
+        }
 
         List<SideloadedModModel> sideloadedMods = new();
 
@@ -46,20 +72,28 @@ public class SideloadService
         return sideloadedMods;
     }
 
-    public void SideloadMod(string path)
+    public void SideloadPlugin(string path)
     {
-        if (string.Equals(Path.GetExtension(path), ".dll", StringComparison.InvariantCultureIgnoreCase))
-        {
-            File.Copy(path,
-                Path.Combine(settingsService.ZeepkistDirectory,
-                    "BepInEx",
-                    "plugins",
-                    "Sideloaded",
-                    Path.GetFileName(path)),
-                true);
+        SideloadMod(ModType.Plugin, path);
+    }
 
-            ModSideloaded?.Invoke();
-            return;
+    public void SideloadBlueprint(string path)
+    {
+        SideloadMod(ModType.Blueprint, path);
+    }
+
+    private void SideloadMod(ModType modType, string path)
+    {
+        if (modType == ModType.Plugin)
+        {
+            if (Sideload(path, ".dll", "Plugins"))
+                return;
+        }
+
+        if (modType == ModType.Blueprint)
+        {
+            if (Sideload(path, ".zeeplevel", "Blueprints"))
+                return;
         }
 
         try
@@ -73,6 +107,7 @@ public class SideloadService
                         "BepInEx",
                         "plugins",
                         "Sideloaded",
+                        modType == ModType.Plugin ? "Plugins" : "Blueprints",
                         Path.GetFileNameWithoutExtension(path)),
                     ExtractExistingFileAction.OverwriteSilently);
 
@@ -83,6 +118,24 @@ public class SideloadService
         {
             // TODO: Log error
         }
+    }
+
+    private bool Sideload(string path, string ext, string dir)
+    {
+        if (!string.Equals(Path.GetExtension(path), ext, StringComparison.InvariantCultureIgnoreCase))
+            return false;
+
+        File.Copy(path,
+            Path.Combine(settingsService.ZeepkistDirectory,
+                "BepInEx",
+                "plugins",
+                "Sideloaded",
+                dir,
+                Path.GetFileName(path)),
+            true);
+
+        ModSideloaded?.Invoke();
+        return true;
     }
 
     public void Remove(SideloadedModModel sideloadedMod)

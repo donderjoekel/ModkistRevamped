@@ -15,7 +15,8 @@
     ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     mc:Ignorable="d">
-    <Grid>
-        <controls:SideloadList />
-    </Grid>
+    <StackPanel>
+        <controls:SideloadList ModType="Plugin" />
+        <controls:SideloadList ModType="Blueprint" />
+    </StackPanel>
 </Page>

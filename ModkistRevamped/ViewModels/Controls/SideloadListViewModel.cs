@@ -25,12 +25,34 @@ public partial class SideloadListViewModel : ObservableObject
 
     [ObservableProperty] private ObservableCollection<FrameworkElement> collection = new();
     [ObservableProperty] private ICollectionView collectionView;
+    [ObservableProperty] private ModType modType;
+    [ObservableProperty] private string title = null!;
+
+    partial void OnModTypeChanged(ModType value)
+    {
+        switch (value)
+        {
+            case ModType.Plugin:
+                Title = "Plugins";
+                break;
+            case ModType.Blueprint:
+                Title = "Blueprints";
+                break;
+            case ModType.None:
+            default:
+                throw new ArgumentOutOfRangeException(nameof(value), value, null);
+        }
+
+        LoadSideloadedMods();
+    }
 
     private void LoadSideloadedMods()
     {
         Collection.Clear();
 
-        List<SideloadedModModel> sideloadedMods = sideloadService.GetSideloadedMods();
+        List<SideloadedModModel> sideloadedMods = ModType == ModType.Plugin
+            ? sideloadService.GetSideloadedPlugins()
+            : sideloadService.GetSideloadedBlueprints();
 
         for (int i = 0; i < sideloadedMods.Count; i++)
         {
@@ -62,16 +84,38 @@ public partial class SideloadListViewModel : ObservableObject
         OpenFileDialog ofd = new()
         {
             Multiselect = false,
-            Filter =
-                "dll files (*.dll)|*.dll|zip files (*.zip)|*.zip|zeeplevel blueprint files (*.zeeplevel)|*.zeeplevel|All files (*.*)|*.*",
+            Filter = GetFilter(),
             Title = "Select mod to side-load"
         };
 
         DialogResult dialogResult = ofd.ShowDialog();
 
-        if (dialogResult == DialogResult.OK && !string.IsNullOrWhiteSpace(ofd.FileName))
+        if (dialogResult != DialogResult.OK || string.IsNullOrWhiteSpace(ofd.FileName))
+            return;
+
+        switch (ModType)
         {
-            sideloadService.SideloadMod(ofd.FileName);
+            case ModType.Plugin:
+                sideloadService.SideloadPlugin(ofd.FileName);
+                break;
+            case ModType.Blueprint:
+                sideloadService.SideloadBlueprint(ofd.FileName);
+                break;
+            case ModType.None:
+            default:
+                throw new ArgumentOutOfRangeException();
         }
+    }
+
+    private string GetFilter()
+    {
+        return ModType switch
+        {
+            ModType.Plugin => "dll files (*.dll)|*.dll|zip files (*.zip)|*.zip|All files (*.*)|*.*",
+            ModType.Blueprint =>
+                "zeeplevel files (*.zeeplevel)|*.zeeplevel|zip files (*.zip)|*.zip|All files (*.*)|*.*",
+            ModType.None => throw new ArgumentOutOfRangeException(nameof(ModType), ModType, null),
+            _ => throw new InvalidOperationException()
+        };
     }
 }

@@ -15,11 +15,17 @@
     mc:Ignorable="d">
 
     <StackPanel>
-        <ui:Button
-            HorizontalAlignment="Right"
-            Command="{Binding ViewModel.SideloadCommand}"
-            Content="Sideload mod"
-            Icon="{ui:SymbolIcon Add24}" />
+        <Grid>
+            <ui:TextBlock
+                HorizontalAlignment="Left"
+                FontTypography="Subtitle"
+                Text="{Binding ViewModel.Title}" />
+            <ui:Button
+                HorizontalAlignment="Right"
+                Command="{Binding ViewModel.SideloadCommand}"
+                Content="Sideload"
+                Icon="{ui:SymbolIcon Add24}" />
+        </Grid>
         <Border
             Margin="0,8"
             Padding="16"
