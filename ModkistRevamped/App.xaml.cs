@@ -83,7 +83,7 @@ public partial class App
             services.AddSingleton<ImageCachingService>();
 
             // Factories
-            services.AddSingleton<ModCardFactory>();
+            services.AddSingleton<ModListCardItemFactory>();
             services.AddSingleton<ModDependencyFactory>();
             services.AddSingleton<ModCardViewModelFactory>();
             services.AddSingleton<ModDependenciesViewModelFactory>();
@@ -100,6 +100,8 @@ public partial class App
             services.AddSingleton<SideloadListViewModelFactory>();
             services.AddSingleton<SideloadListItemViewModelFactory>();
             services.AddSingleton<ModCreatorViewModelFactory>();
+            services.AddSingleton<ModListListItemViewModelFactory>();
+            services.AddSingleton<ModListListItemFactory>();
 
             // Main window and services
             services.AddSingleton<MainWindow>();

@@ -1,0 +1,69 @@
+﻿<UserControl
+    x:Class="TNRD.Modkist.Views.Controls.List.ModListListItem"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:list="clr-namespace:TNRD.Modkist.Views.Controls.List"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    d:DataContext="{d:DesignInstance list:ModListListItem,
+                                     IsDesignTimeCreatable=False}"
+    d:DesignHeight="900"
+    d:DesignWidth="1600"
+    ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+    ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <SolidColorBrush
+            x:Key="CloseButNotCompletelyTransparentBackground"
+            Opacity="0.01"
+            Color="{StaticResource ApplicationBackgroundColor}" />
+    </UserControl.Resources>
+    <Border
+        Margin="0,8"
+        Padding="16"
+        Background="{DynamicResource CloseButNotCompletelyTransparentBackground}"
+        BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+        BorderThickness="2"
+        CornerRadius="8">
+        <Border.InputBindings>
+            <MouseBinding Command="{Binding ViewModel.ClickedCommand}" MouseAction="LeftClick" />
+        </Border.InputBindings>
+        <Grid>
+            <StackPanel Orientation="Horizontal">
+                <ui:Image
+                    Width="160"
+                    Height="90"
+                    CornerRadius="10"
+                    Source="{Binding ViewModel.ImageSource}" />
+                <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
+                    <ui:TextBlock
+                        VerticalAlignment="Center"
+                        FontTypography="Title"
+                        Text="{Binding ViewModel.Title}" />
+                    <ui:TextBlock
+                        VerticalAlignment="Center"
+                        FontTypography="BodyStrong"
+                        Foreground="{DynamicResource TextFillColorDisabledBrush}"
+                        Text="{Binding ViewModel.Information}" />
+                </StackPanel>
+
+            </StackPanel>
+            <ui:Button
+                HorizontalAlignment="Right"
+                Appearance="{Binding ViewModel.ButtonAppearance}"
+                Command="{Binding ViewModel.ToggleSubscriptionCommand}"
+                Content="{Binding ViewModel.ButtonContent}"
+                CornerRadius="10"
+                Icon="SaveCopy24"
+                IsEnabled="{Binding ViewModel.CanSubscribe}" />
+            <ui:ProgressRing
+                Margin="16,0,0,0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Stretch"
+                IsIndeterminate="True"
+                Visibility="{Binding ViewModel.ProgressVisibility}" />
+        </Grid>
+    </Border>
+</UserControl>

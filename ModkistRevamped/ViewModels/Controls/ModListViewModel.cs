@@ -8,39 +8,48 @@ using TNRD.Modkist.Models;
 using TNRD.Modkist.Services;
 using TNRD.Modkist.Services.Subscription;
 using TNRD.Modkist.Views.Controls;
+using TNRD.Modkist.Views.Controls.List;
+using Visibility = System.Windows.Visibility;
 
 namespace TNRD.Modkist.ViewModels.Controls;
 
 public partial class ModListViewModel : ObservableObject
 {
-    private readonly ModCardFactory modCardFactory;
+    private readonly ModListCardItemFactory modListCardItemFactory;
+    private readonly ModListListItemFactory modListListItemFactory;
     private readonly ModCachingService modCachingService;
     private readonly ISubscriptionService subscriptionService;
 
     public ModListViewModel(
-        ModCardFactory modCardFactory,
+        ModListCardItemFactory modListCardItemFactory,
         ModCachingService modCachingService,
-        ISubscriptionService subscriptionService
+        ISubscriptionService subscriptionService,
+        ModListListItemFactory modListListItemFactory
     )
     {
-        this.modCardFactory = modCardFactory;
+        this.modListCardItemFactory = modListCardItemFactory;
         this.modCachingService = modCachingService;
         this.subscriptionService = subscriptionService;
+        this.modListListItemFactory = modListListItemFactory;
 
         this.subscriptionService.SubscriptionAdded += OnSubscriptionAdded;
         this.subscriptionService.SubscriptionRemoved += OnSubscriptionRemoved;
 
-        collectionView = CollectionViewSource.GetDefaultView(ModCards);
-        collectionView.Filter = FilterModCards;
+        collectionView = CollectionViewSource.GetDefaultView(collection);
+        collectionView.Filter = FilterItems;
+
         OnSortModeChanged(SortMode.MostPopular);
     }
 
     [ObservableProperty] private ModType modType;
     [ObservableProperty] private string? query;
     [ObservableProperty] private SortMode sortMode = SortMode.MostPopular;
-    [ObservableProperty] private ObservableCollection<ModCard> modCards = new();
+    [ObservableProperty] private ObservableCollection<FrameworkElement> collection = new();
     [ObservableProperty] private ICollectionView collectionView;
     [ObservableProperty] private bool installedOnly;
+    [ObservableProperty] private ModListMode listMode;
+    [ObservableProperty] private Visibility cardViewVisibility;
+    [ObservableProperty] private Visibility listViewVisibility;
 
     private void OnSubscriptionAdded(Mod mod)
     {
@@ -68,16 +77,39 @@ public partial class ModListViewModel : ObservableObject
         ReloadMods();
     }
 
+    partial void OnListModeChanged(ModListMode value)
+    {
+        CardViewVisibility = value == ModListMode.Card ? Visibility.Visible : Visibility.Collapsed;
+        ListViewVisibility = value == ModListMode.List ? Visibility.Visible : Visibility.Collapsed;
+
+        ReloadMods();
+    }
+
     private void ReloadMods()
     {
+        if (ListMode == ModListMode.None)
+            return;
+
         List<Mod> mods = GetOrderedMods();
 
-        ModCards.Clear();
+        Collection.Clear();
 
-        foreach (Mod mod in mods)
+        for (int i = 0; i < mods.Count; i++)
         {
-            ModCard modCard = modCardFactory.Create(mod);
-            ModCards.Add(modCard);
+            Mod mod = mods[i];
+
+            if (ListMode == ModListMode.Card)
+            {
+                Collection.Add(modListCardItemFactory.Create(mod));
+            }
+            else if (ListMode == ModListMode.List)
+            {
+                Collection.Add(modListListItemFactory.Create(mod));
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException();
+            }
         }
     }
 
@@ -91,22 +123,22 @@ public partial class ModListViewModel : ObservableObject
         switch (value)
         {
             case SortMode.Alphabetical:
-                SetSort(nameof(ModCard.SortTitle), ListSortDirection.Ascending);
+                SetSort(nameof(ModListCardItem.SortTitle), ListSortDirection.Ascending);
                 break;
             case SortMode.MostPopular:
-                SetSort(nameof(ModCard.SortPopularityRank), ListSortDirection.Ascending);
+                SetSort(nameof(ModListCardItem.SortPopularityRank), ListSortDirection.Ascending);
                 break;
             case SortMode.MostDownloads:
-                SetSort(nameof(ModCard.SortTotalDownloads), ListSortDirection.Ascending);
+                SetSort(nameof(ModListCardItem.SortTotalDownloads), ListSortDirection.Ascending);
                 break;
             case SortMode.MostSubscribers:
-                SetSort(nameof(ModCard.SortTotalSubscribers), ListSortDirection.Ascending);
+                SetSort(nameof(ModListCardItem.SortTotalSubscribers), ListSortDirection.Ascending);
                 break;
             case SortMode.RecentlyAdded:
-                SetSort(nameof(ModCard.SortDateAdded), ListSortDirection.Descending);
+                SetSort(nameof(ModListCardItem.SortDateAdded), ListSortDirection.Descending);
                 break;
             case SortMode.LastUpdated:
-                SetSort(nameof(ModCard.SortDateUpdated), ListSortDirection.Descending);
+                SetSort(nameof(ModListCardItem.SortDateUpdated), ListSortDirection.Descending);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(value), value, null);
@@ -138,12 +170,14 @@ public partial class ModListViewModel : ObservableObject
         return mods.OrderByDescending(x => Math.Max(x.DateUpdated, x.DateAdded)).ToList();
     }
 
-    private bool FilterModCards(object obj)
+    private bool FilterItems(object obj)
     {
-        if (obj is not ModCard modCard)
-            return false;
+        if (obj is ModListCardItem cardItem)
+            return string.IsNullOrEmpty(Query) || cardItem.IsValidForFilter(Query);
+        if (obj is ModListListItem listItem)
+            return string.IsNullOrEmpty(Query) || listItem.IsValidForFilter(Query);
 
-        return string.IsNullOrEmpty(Query) || modCard.IsValidForFilter(Query);
+        return false;
     }
 
     public void OnNavigatedTo()

@@ -56,7 +56,7 @@
                 Command="{Binding ViewModel.PreviousImageCommand}"
                 CornerRadius="8,0,0,8"
                 Icon="{Binding ViewModel.IconLeft}"
-                Opacity="0.5">
+                Opacity="0">
                 <ui:Button.Style>
                     <!--  ReSharper disable once Xaml.StaticResourceNotResolved  -->
                     <Style BasedOn="{StaticResource DefaultUiButtonStyle}" TargetType="ui:Button">
@@ -88,7 +88,7 @@
                 Command="{Binding ViewModel.NextImageCommand}"
                 CornerRadius="0,8,8,0"
                 Icon="{Binding ViewModel.IconRight}"
-                Opacity="0.5">
+                Opacity="0">
                 <ui:Button.Style>
                     <!--  ReSharper disable once Xaml.StaticResourceNotResolved  -->
                     <Style BasedOn="{StaticResource DefaultUiButtonStyle}" TargetType="ui:Button">

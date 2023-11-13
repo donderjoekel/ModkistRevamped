@@ -1,15 +1,13 @@
 ﻿using System.Windows.Controls;
 using Modio.Models;
 using TNRD.Modkist.Factories.ViewModels;
-using TNRD.Modkist.Services;
 using TNRD.Modkist.ViewModels.Controls;
-using Wpf.Ui;
 
-namespace TNRD.Modkist.Views.Controls;
+namespace TNRD.Modkist.Views.Controls.List;
 
-public partial class ModCard : UserControl
+public partial class ModListCardItem : UserControl
 {
-    public ModCard(Mod mod)
+    public ModListCardItem(Mod mod)
     {
         ViewModel = App.GetService<ModCardViewModelFactory>().Create(mod);
         DataContext = this;
@@ -17,7 +15,7 @@ public partial class ModCard : UserControl
         InitializeComponent();
     }
 
-    public ModCardViewModel ViewModel { get; set; }
+    public ModListCardItemViewModel ViewModel { get; set; }
 
     public bool IsValidForFilter(string filter)
     {

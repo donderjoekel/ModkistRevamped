@@ -1,12 +1,12 @@
 ﻿<UserControl
-    x:Class="TNRD.Modkist.Views.Controls.ModCard"
+    x:Class="TNRD.Modkist.Views.Controls.List.ModListCardItem"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:TNRD.Modkist.Views.Controls"
+    xmlns:list="clr-namespace:TNRD.Modkist.Views.Controls.List"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    d:DataContext="{d:DesignInstance local:ModCard,
+    d:DataContext="{d:DesignInstance list:ModListCardItem,
                                      IsDesignTimeCreatable=False}"
     d:DesignHeight="300"
     d:DesignWidth="300"

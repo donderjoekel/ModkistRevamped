@@ -3,7 +3,7 @@ using TNRD.Modkist.Factories.ViewModels;
 using TNRD.Modkist.Models;
 using TNRD.Modkist.ViewModels.Controls;
 
-namespace TNRD.Modkist.Views.Controls;
+namespace TNRD.Modkist.Views.Controls.List;
 
 public partial class ModList : UserControl
 {
@@ -35,6 +35,20 @@ public partial class ModList : UserControl
         modList.ViewModel.InstalledOnly = (bool)e.NewValue;
     }
 
+    public static readonly DependencyProperty ListModeProperty = DependencyProperty.Register(
+        nameof(ListMode),
+        typeof(ModListMode),
+        typeof(ModList),
+        new PropertyMetadata(default(ModListMode), ListModeChanged));
+
+    private static void ListModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not ModList modList)
+            return;
+
+        modList.ViewModel.ListMode = (ModListMode)e.NewValue;
+    }
+
     public ModList()
     {
         ViewModel = App.GetService<ModListViewModelFactory>().Create();
@@ -55,5 +69,11 @@ public partial class ModList : UserControl
     {
         get => (bool)GetValue(InstalledOnlyProperty);
         set => SetValue(InstalledOnlyProperty, value);
+    }
+
+    public ModListMode ListMode
+    {
+        get => (ModListMode)GetValue(ListModeProperty);
+        set => SetValue(ListModeProperty, value);
     }
 }

@@ -2,8 +2,8 @@
     x:Class="TNRD.Modkist.Views.Pages.BrowsePluginsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="clr-namespace:TNRD.Modkist.Views.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:list="clr-namespace:TNRD.Modkist.Views.Controls.List"
     xmlns:local="clr-namespace:TNRD.Modkist.Views.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
@@ -16,6 +16,6 @@
     ScrollViewer.CanContentScroll="False"
     mc:Ignorable="d">
     <Grid>
-        <controls:ModList ModType="Plugin" />
+        <list:ModList ListMode="Card" ModType="Plugin" />
     </Grid>
 </Page>

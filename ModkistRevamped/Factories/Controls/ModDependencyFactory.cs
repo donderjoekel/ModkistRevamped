@@ -1,20 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Modio.Models;
 using TNRD.Modkist.Views.Controls.Details.Dependencies;
+using TNRD.Modkist.Views.Controls.List;
 
 namespace TNRD.Modkist.Factories.Controls;
 
-public class ModDependencyFactory
+public class ModDependencyFactory : FactoryBase<ModDependency>
 {
-    private readonly IServiceProvider provider;
-
     public ModDependencyFactory(IServiceProvider provider)
+        : base(provider)
     {
-        this.provider = provider;
-    }
-
-    public ModDependency Create(Dependency dependency)
-    {
-        return ActivatorUtilities.CreateInstance<ModDependency>(provider, dependency);
     }
 }

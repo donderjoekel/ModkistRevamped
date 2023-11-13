@@ -7,6 +7,7 @@ using TNRD.Modkist.Factories.Controls;
 using TNRD.Modkist.Services;
 using TNRD.Modkist.Views.Controls;
 using TNRD.Modkist.Views.Controls.Details.Dependencies;
+using TNRD.Modkist.Views.Controls.List;
 using Visibility = System.Windows.Visibility;
 
 namespace TNRD.Modkist.ViewModels.Controls.Details.Dependencies;

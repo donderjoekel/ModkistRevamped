@@ -9,7 +9,7 @@ using Visibility = System.Windows.Visibility;
 
 namespace TNRD.Modkist.ViewModels.Controls;
 
-public partial class ModCardViewModel : ObservableObject
+public partial class ModListCardItemViewModel : ObservableObject
 {
     private readonly ImageCachingService imageCachingService;
     private readonly INavigationService navigationService;
@@ -18,7 +18,7 @@ public partial class ModCardViewModel : ObservableObject
     private readonly SnackbarQueueService snackbarQueueService;
     private readonly DependenciesService dependenciesService;
 
-    public ModCardViewModel(
+    public ModListCardItemViewModel(
         ImageCachingService imageCachingService,
         INavigationService navigationService,
         SelectedModService selectedModService,
