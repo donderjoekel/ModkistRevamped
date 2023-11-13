@@ -32,6 +32,11 @@ public class ImageCachingService
                 // Broken file? Just delete it?
                 File.Delete(path);
             }
+            else if (imageCache.ContainsKey(cachedImageModel.Key)) // Handle duplicates
+            {
+                File.Delete(path);
+                File.Delete(cachedImageModel.Path);
+            }
             else
             {
                 imageCache.Add(cachedImageModel.Key, cachedImageModel.Path);
