@@ -3,8 +3,10 @@ using System.Windows.Media.Imaging;
 using Modio;
 using Modio.Models;
 using TNRD.Modkist.Services;
+using TNRD.Modkist.Services.Subscription;
 using TNRD.Modkist.Views.Pages;
 using Wpf.Ui;
+using Wpf.Ui.Controls;
 using Visibility = System.Windows.Visibility;
 
 namespace TNRD.Modkist.ViewModels.Controls.Details.Dependencies;
@@ -16,13 +18,17 @@ public partial class ModDependencyViewModel : ObservableObject
     private readonly SelectedModService selectedModService;
     private readonly ModsClient modsClient;
     private readonly Dependency dependency;
+    private readonly Mod mod;
 
     public ModDependencyViewModel(
         ImageCachingService imageCachingService,
         INavigationService navigationService,
         SelectedModService selectedModService,
         ModsClient modsClient,
-        Dependency dependency
+        Dependency dependency,
+        ModCachingService modCachingService,
+        ISubscriptionService subscriptionService,
+        DependenciesService dependenciesService
     )
     {
         this.imageCachingService = imageCachingService;
@@ -31,19 +37,33 @@ public partial class ModDependencyViewModel : ObservableObject
         this.modsClient = modsClient;
         this.dependency = dependency;
 
+        mod = modCachingService[dependency.ModId];
+        Name = mod.Name;
+
+        SubscribeButtonEnabled = subscriptionService.IsSubscribed(mod.Id)
+            ? !dependenciesService.IsDependency(mod)
+            : subscriptionService.CanSubscribe;
+
+        SubscribeButtonText = subscriptionService.IsSubscribed(mod.Id)
+            ? "Unsubscribe"
+            : "Subscribe";
+
+        SubscribeButtonAppearance = subscriptionService.IsSubscribed(mod.Id)
+            ? ControlAppearance.Secondary
+            : ControlAppearance.Primary;
+
         LoadDependency();
     }
 
     [ObservableProperty] private string? name;
     [ObservableProperty] private ImageSource? image;
     [ObservableProperty] private Visibility progressVisibility;
-
-    private Mod? mod;
+    [ObservableProperty] private ControlAppearance subscribeButtonAppearance;
+    [ObservableProperty] private string? subscribeButtonText;
+    [ObservableProperty] private bool subscribeButtonEnabled;
 
     private async void LoadDependency()
     {
-        mod = await modsClient[dependency.ModId].Get();
-        Name = mod.Name;
         await LoadImage();
     }
 

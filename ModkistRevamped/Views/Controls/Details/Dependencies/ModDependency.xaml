@@ -32,10 +32,11 @@
         </StackPanel>
         <ui:Button
             HorizontalAlignment="Right"
-            Appearance="Primary"
+            Appearance="{Binding ViewModel.SubscribeButtonAppearance}"
             Command="{Binding ViewModel.SubscribeClickedCommand}"
-            Content="Subscribe"
-            CornerRadius="10" />
+            Content="{Binding ViewModel.SubscribeButtonText}"
+            CornerRadius="10"
+            IsEnabled="{Binding ViewModel.SubscribeButtonEnabled}" />
         <ui:ProgressRing
             Margin="16,0,0,0"
             HorizontalAlignment="Left"
