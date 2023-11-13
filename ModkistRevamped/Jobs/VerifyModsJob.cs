@@ -3,6 +3,8 @@ using TNRD.Modkist.Models;
 using TNRD.Modkist.Services;
 using TNRD.Modkist.Services.Hosted;
 using TNRD.Modkist.Services.Subscription;
+using Wpf.Ui;
+using Wpf.Ui.Controls;
 
 namespace TNRD.Modkist.Jobs;
 
@@ -13,13 +15,17 @@ public class VerifyModsJob : JobBase
     private readonly ISubscriptionService subscriptionService;
     private readonly DependenciesService dependenciesService;
     private readonly ModCachingService modCachingService;
+    private readonly SnackbarQueueService snackbarQueueService;
+    private readonly ISnackbarService snackbarService;
 
     public VerifyModsJob(
         InstallationService installationService,
         ModManagerHostedService modManagerHostedService,
         ISubscriptionService subscriptionService,
         DependenciesService dependenciesService,
-        ModCachingService modCachingService
+        ModCachingService modCachingService,
+        SnackbarQueueService snackbarQueueService,
+        ISnackbarService snackbarService
     )
     {
         this.installationService = installationService;
@@ -27,6 +33,8 @@ public class VerifyModsJob : JobBase
         this.subscriptionService = subscriptionService;
         this.dependenciesService = dependenciesService;
         this.modCachingService = modCachingService;
+        this.snackbarQueueService = snackbarQueueService;
+        this.snackbarService = snackbarService;
     }
 
     public override Task ExecuteAsync(CancellationToken cancellationToken)
@@ -90,6 +98,15 @@ public class VerifyModsJob : JobBase
         else if (modsToUpdate.Count == 1)
         {
             modManagerHostedService.EnqueueUpdateModJob(modsToUpdate.First());
+        }
+
+        if (modsToAdd.Count == 0 && modsToRemove.Count == 0 && modsToUpdate.Count == 0)
+        {
+            snackbarQueueService.Enqueue("Hurray!",
+                "All mods are up to date",
+                ControlAppearance.Secondary,
+                null,
+                snackbarService.DefaultTimeOut * 2);
         }
     }
 
