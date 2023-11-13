@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Modio;
+using Octokit;
 using Serilog;
 using TNRD.Modkist.Factories.Controls;
 using TNRD.Modkist.Factories.ViewModels;
@@ -25,6 +26,7 @@ using TNRD.Modkist.ViewModels.Windows;
 using TNRD.Modkist.Views.Pages;
 using TNRD.Modkist.Views.Windows;
 using Wpf.Ui;
+using Credentials = Modio.Credentials;
 
 namespace TNRD.Modkist;
 
@@ -77,6 +79,10 @@ public partial class App
             services.AddSingleton<AuthClient>(provider => provider.GetRequiredService<Client>().Auth);
             services.AddSingleton<ModsClient>(provider => provider.GetRequiredService<Client>().Games[3213].Mods);
             services.AddSingleton<UserClient>(provider => provider.GetRequiredService<Client>().User);
+
+            services.AddSingleton<IGitHubClient>(provider => new GitHubClient(
+                new ProductHeaderValue("Modkist-Revamped",
+                    Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? string.Empty)));
 
             // Image loading
             services.AddHttpClient();

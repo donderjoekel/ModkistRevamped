@@ -1,31 +1,47 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 using Microsoft.Win32;
+using Octokit;
 using TNRD.Modkist.Services;
 using TNRD.Modkist.Views.Pages;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
+using Application = System.Windows.Application;
 
 namespace TNRD.Modkist.ViewModels.Pages;
 
-public class InitializationViewModel : ObservableObject, INavigationAware
+public partial class InitializationViewModel : ObservableObject, INavigationAware
 {
     private readonly SteamService steamService;
     private readonly SettingsService settingsService;
     private readonly INavigationService navigationService;
+    private readonly IGitHubClient gitHubClient;
+    private readonly IContentDialogService contentDialogService;
 
     public InitializationViewModel(
         SteamService steamService,
         SettingsService settingsService,
-        INavigationService navigationService
+        INavigationService navigationService,
+        IGitHubClient gitHubClient,
+        IContentDialogService contentDialogService
     )
     {
         this.steamService = steamService;
         this.settingsService = settingsService;
         this.navigationService = navigationService;
+        this.gitHubClient = gitHubClient;
+        this.contentDialogService = contentDialogService;
     }
+
+    [ObservableProperty] private string? textContent;
 
     async void INavigationAware.OnNavigatedTo()
     {
+        await CheckForUpdate();
+
+        TextContent = "Checking for Zeepkist...";
+
         if (HasValidZeepkistPath())
         {
             await FinishInitialization();
@@ -43,6 +59,33 @@ public class InitializationViewModel : ObservableObject, INavigationAware
         string zeepkistPath = GetZeepkistPathThroughFileDialog();
         settingsService.ZeepkistDirectory = Path.GetDirectoryName(zeepkistPath)!;
         await FinishInitialization(false);
+    }
+
+    private async Task CheckForUpdate()
+    {
+        TextContent = "Checking for update...";
+
+        Release? latestRelease = await gitHubClient.Repository.Release.GetLatest("tnrd-org", "ModkistRevamped");
+        Version latestReleaseVersion = Version.Parse(latestRelease.TagName.TrimStart('v', 'V'));
+        Version? version = Assembly.GetExecutingAssembly().GetName().Version;
+
+        if (version < latestReleaseVersion)
+        {
+            ContentDialogResult result = await contentDialogService.ShowSimpleDialogAsync(
+                new SimpleContentDialogCreateOptions()
+                {
+                    Title = "Update available",
+                    Content = "A new version of Modkist is available. Do you want to download the latest version?",
+                    CloseButtonText = "No",
+                    PrimaryButtonText = "Yes"
+                });
+
+            if (result == ContentDialogResult.Primary)
+            {
+                Process.Start("explorer", latestRelease.HtmlUrl);
+                Application.Current.Shutdown();
+            }
+        }
     }
 
     private async Task FinishInitialization(bool withArtificialDelay = true)
