@@ -26,8 +26,6 @@ public partial class SideloadListViewModel : ObservableObject
         new FileSystemWatcher();
 
         collectionView = CollectionViewSource.GetDefaultView(collection);
-
-        LoadSideloadedMods();
     }
 
     private FileSystemWatcher? fileSystemWatcher;
@@ -54,7 +52,7 @@ public partial class SideloadListViewModel : ObservableObject
 
         fileSystemWatcher?.Dispose();
 
-        fileSystemWatcher = new FileSystemWatcher(sideloadService.GetFullPath(value));
+        fileSystemWatcher = new FileSystemWatcher(sideloadService.GetAndCreateFullPath(value));
         fileSystemWatcher.IncludeSubdirectories = false;
         fileSystemWatcher.Changed += (_, _) => LoadSideloadedMods();
         fileSystemWatcher.Created += (_, _) => LoadSideloadedMods();

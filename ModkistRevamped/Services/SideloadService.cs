@@ -33,9 +33,7 @@ public class SideloadService
 
     private List<SideloadedModModel> GetSideloadedMods(ModType modType)
     {
-        string sideloadedDirectory = GetFullPath(modType);
-        if (!Directory.Exists(sideloadedDirectory))
-            Directory.CreateDirectory(sideloadedDirectory);
+        string sideloadedDirectory = GetAndCreateFullPath(modType);
 
         List<string> paths = new();
         paths.AddRange(Directory.GetDirectories(sideloadedDirectory, "*", SearchOption.TopDirectoryOnly));
@@ -149,7 +147,19 @@ public class SideloadService
         SideloadedModRemoved?.Invoke();
     }
 
-    public string GetFullPath(ModType value)
+    public string GetAndCreateFullPath(ModType value)
+    {
+        string fullPath = GetFullPath(value);
+        if (string.IsNullOrEmpty(fullPath))
+            return fullPath;
+
+        if (!Directory.Exists(fullPath))
+            Directory.CreateDirectory(fullPath);
+
+        return fullPath;
+    }
+
+    private string GetFullPath(ModType value)
     {
         return value switch
         {
