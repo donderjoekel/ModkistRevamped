@@ -17,6 +17,10 @@
     <modInfoSection:ModInfoSection Header="Statistics">
         <StackPanel Margin="16" Orientation="Vertical">
             <Grid>
+                <ui:TextBlock HorizontalAlignment="Left" Text="Version Number" />
+                <ui:TextBlock HorizontalAlignment="Right" Text="{Binding ViewModel.VersionNumber}" />
+            </Grid>
+            <Grid>
                 <ui:TextBlock HorizontalAlignment="Left" Text="Last Updated" />
                 <ui:TextBlock HorizontalAlignment="Right" Text="{Binding ViewModel.LastUpdated}" />
             </Grid>

@@ -12,6 +12,8 @@ public class ModStatisticsViewModel : ObservableObject
         this.selectedModService = selectedModService;
     }
 
+    public string VersionNumber => selectedModService.SelectedMod!.Modfile?.Version ?? "Unknown";
+
     public string LastUpdated =>
         DateTimeOffset.FromUnixTimeSeconds(selectedModService.SelectedMod!.DateUpdated).Humanize();
 
