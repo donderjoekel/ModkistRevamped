@@ -33,12 +33,7 @@ public class SideloadService
 
     private List<SideloadedModModel> GetSideloadedMods(ModType modType)
     {
-        string sideloadedDirectory =
-            Path.Combine(settingsService.ZeepkistDirectory,
-                "BepInEx",
-                "plugins",
-                "Sideloaded",
-                modType == ModType.Plugin ? "Plugins" : "Blueprints");
+        string sideloadedDirectory = GetFullPath(modType);
         if (!Directory.Exists(sideloadedDirectory))
             Directory.CreateDirectory(sideloadedDirectory);
 
@@ -152,5 +147,24 @@ public class SideloadService
         }
 
         SideloadedModRemoved?.Invoke();
+    }
+
+    public string GetFullPath(ModType value)
+    {
+        return value switch
+        {
+            ModType.None => string.Empty,
+            ModType.Plugin => Path.Combine(settingsService.ZeepkistDirectory,
+                "BepInEx",
+                "plugins",
+                "Sideloaded",
+                "Plugins"),
+            ModType.Blueprint => Path.Combine(settingsService.ZeepkistDirectory,
+                "BepInEx",
+                "plugins",
+                "Sideloaded",
+                "Blueprints"),
+            _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+        };
     }
 }
