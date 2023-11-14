@@ -104,6 +104,9 @@ public class VerifyBepInExViewModel : ObservableObject, INavigationAware
     private bool HasExistingMods()
     {
         string pluginsPath = Path.Combine(settingsService.ZeepkistDirectory, "BepInEx", "plugins");
+        if (!Directory.Exists(pluginsPath))
+            return false;
+
         string[] directories = Directory.GetDirectories(pluginsPath, "*", SearchOption.TopDirectoryOnly);
 
         foreach (string directory in directories)
