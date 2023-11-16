@@ -51,9 +51,13 @@ public class ImageCachingService
 
     public async Task<string> GetImagePath(string url)
     {
-        if (imageCache.TryGetValue(url, out string? path))
+        if (!imageCache.TryGetValue(url, out string? path))
+            return await GetImageFromWeb(url);
+
+        if (File.Exists(path))
             return path;
 
+        imageCache.Remove(url);
         return await GetImageFromWeb(url);
     }
 
@@ -63,6 +67,9 @@ public class ImageCachingService
 
         try
         {
+            if (imageCache.TryGetValue(url, out string? existingPath))
+                return existingPath;
+
             IHttpClientFactory httpClientFactory = App.GetService<IHttpClientFactory>();
             HttpClient httpClient = httpClientFactory.CreateClient();
 
@@ -91,24 +98,31 @@ public class ImageCachingService
 
             Guid newGuid = Guid.NewGuid();
 
+            string imagePath = Path.Combine(cacheDirectory, $"{newGuid}.png");
+            string jsonPath = Path.Combine(cacheDirectory, $"{newGuid}.json");
+
             CachedImageModel image = new()
             {
                 Key = url,
-                Path = Path.Combine(cacheDirectory, $"{newGuid}.png")
+                Path = imagePath
             };
 
             await File.WriteAllTextAsync(
-                Path.Combine(cacheDirectory, $"{newGuid}.json"),
+                jsonPath,
                 JsonConvert.SerializeObject(image));
 
-            await using (FileStream fileStream = File.Create(image.Path))
+            await using (FileStream fileStream = File.Create(imagePath))
             {
                 await stream.CopyToAsync(fileStream);
             }
 
-            imageCache.Add(url, image.Path);
+            if (imageCache.TryAdd(url, imagePath))
+                return imagePath;
 
-            return image.Path;
+            File.Delete(imagePath);
+            File.Delete(jsonPath);
+
+            return imageCache.TryGetValue(url, out existingPath) ? existingPath : null!;
         }
         finally
         {
