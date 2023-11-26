@@ -48,8 +48,19 @@ public class AddModsJob : JobBase
             }
             else
             {
-                installationService.InstallMod(mod, downloadedFilePath);
-                installedMods++;
+                try
+                {
+                    installationService.InstallMod(mod, downloadedFilePath);
+                    installedMods++;
+                }
+                catch (InvalidOperationException)
+                {
+                    snackbarQueueService.Enqueue("Install",
+                        $"Failed to install {mod.Name}!",
+                        ControlAppearance.Caution,
+                        new SymbolIcon(SymbolRegular.Warning24));
+                    failedMods++;
+                }
             }
         }
 

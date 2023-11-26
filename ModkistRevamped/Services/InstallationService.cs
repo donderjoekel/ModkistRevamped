@@ -82,7 +82,7 @@ public class InstallationService
         }
         else
         {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("Unable to determine if the mod is a plugin or a blueprint");
         }
 
         Directory.CreateDirectory(destinationFolder);
@@ -116,7 +116,7 @@ public class InstallationService
         }
         else
         {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("Unable to determine if the mod is a plugin or a blueprint");
         }
 
         string[] directories = Directory.GetDirectories(path, mod.Id + "_*", SearchOption.TopDirectoryOnly);
