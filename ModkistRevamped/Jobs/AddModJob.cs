@@ -50,11 +50,21 @@ public class AddModJob : JobBase
             return;
         }
 
-        installationService.InstallMod(mod, downloadedFilePath);
+        try
+        {
+            installationService.InstallMod(mod, downloadedFilePath);
 
-        snackbarQueueService.Enqueue("Install",
-            $"'{mod.Name}' has been installed!",
-            ControlAppearance.Secondary,
-            new SymbolIcon(SymbolRegular.Checkmark24));
+            snackbarQueueService.Enqueue("Install",
+                $"'{mod.Name}' has been installed!",
+                ControlAppearance.Secondary,
+                new SymbolIcon(SymbolRegular.Checkmark24));
+        }
+        catch (InvalidOperationException)
+        {
+            snackbarQueueService.Enqueue("Install",
+                $"Unable to install '{mod.Name}'",
+                ControlAppearance.Caution,
+                new SymbolIcon(SymbolRegular.Warning24));
+        }
     }
 }
