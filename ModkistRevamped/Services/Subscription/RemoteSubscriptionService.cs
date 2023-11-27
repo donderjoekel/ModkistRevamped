@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Modio;
+using Modio.Filters;
 using Modio.Models;
 
 namespace TNRD.Modkist.Services.Subscription;
@@ -51,7 +52,9 @@ public class RemoteSubscriptionService : ISubscriptionService
                     "Cannot initialize subscription service without a valid access token!");
 
             subscriptions.Clear();
-            subscriptions.AddRange(await userClient.GetSubscriptions().ToList());
+            subscriptions.AddRange(await userClient
+                .GetSubscriptions(Filter.Custom("game_id", Operator.Equal, "3213"))
+                .ToList());
 
             if (notify) SubscriptionsLoaded?.Invoke();
         }
