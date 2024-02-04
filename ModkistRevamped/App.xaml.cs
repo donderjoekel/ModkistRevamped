@@ -4,6 +4,8 @@
 // All Rights Reserved.
 
 using System.IO;
+using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Windows.Threading;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +15,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Modio;
 using Octokit;
+using Polly;
+using Polly.Extensions.Http;
 using Serilog;
 using TNRD.Modkist.Factories.Controls;
 using TNRD.Modkist.Factories.ViewModels;
@@ -64,16 +68,30 @@ public partial class App
             // Configuration
             services.Configure<ModioSettings>(context.Configuration.GetSection(ModioSettings.SECTION));
 
+            services.AddHttpClient("modio")
+                .AddPolicyHandler(Policy
+                    .HandleResult<HttpResponseMessage>(m => m.StatusCode == HttpStatusCode.TooManyRequests)
+                    .WaitAndRetryAsync(1,
+                        (_, result, _) => result.Result.Headers.RetryAfter.Delta.Value,
+                        (_, _, _, _) => Task.CompletedTask));
+
             // Main mod.io client with authentication
             services.AddSingleton<Client>(provider =>
             {
                 SettingsService settingsService = provider.GetRequiredService<SettingsService>();
                 IOptions<ModioSettings> modioOptions = provider.GetRequiredService<IOptions<ModioSettings>>();
 
+                HttpClient httpClient = provider.GetRequiredService<IHttpClientFactory>().CreateClient("modio");
+
                 return settingsService.HasValidAccessToken()
-                    ? new Client(new Uri("https://g-3213.modapi.io/v1"),
-                        new Credentials(modioOptions.Value.ApiKey, settingsService.AccessToken!.Value!))
-                    : new Client(new Uri("https://g-3213.modapi.io/v1"), new Credentials(modioOptions.Value.ApiKey));
+                    ? new Client(
+                        new Uri("https://g-3213.modapi.io/v1"),
+                        new Credentials(modioOptions.Value.ApiKey, settingsService.AccessToken!.Value!),
+                        httpClient)
+                    : new Client(
+                        new Uri("https://g-3213.modapi.io/v1"),
+                        new Credentials(modioOptions.Value.ApiKey),
+                        httpClient);
             });
 
             // Mod.io clients
