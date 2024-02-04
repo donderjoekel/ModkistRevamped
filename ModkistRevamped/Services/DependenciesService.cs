@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Reflection;
 using Modio;
 using Modio.Models;
 using Newtonsoft.Json;
@@ -118,12 +119,21 @@ public class DependenciesService
         return dependencyIdToModIds.Keys.ToList();
     }
 
-    private List<DependencyModel> LoadDependenciesFromDisk()
+    private static string GetDependenciesPath()
     {
-        string dependenciesPath = Path.Combine(
+        Version? version = Assembly.GetExecutingAssembly().GetName().Version;
+
+        return Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Modkist",
-            "dependencies.json");
+            version == null
+                ? "dependencies.json"
+                : $"dependencies-v{version.ToString().Replace(".", string.Empty)}.json");
+    }
+
+    private List<DependencyModel> LoadDependenciesFromDisk()
+    {
+        string dependenciesPath = GetDependenciesPath();
 
         if (!File.Exists(dependenciesPath))
         {
@@ -136,10 +146,7 @@ public class DependenciesService
 
     private void SaveDependenciesToDisk()
     {
-        string dependenciesPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Modkist",
-            "dependencies.json");
+        string dependenciesPath = GetDependenciesPath();
 
         List<DependencyModel> dependencyModels = dependencyIdToModIds
             .Select(x => new DependencyModel(x.Key, modCachingService[x.Key].DateUpdated, x.Value)).ToList();
