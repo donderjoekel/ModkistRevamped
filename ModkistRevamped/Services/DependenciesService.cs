@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Reflection;
+using Microsoft.Extensions.Logging;
 using Modio;
 using Modio.Models;
 using Newtonsoft.Json;
@@ -15,16 +16,19 @@ public class DependenciesService
     private readonly ModsClient modsClient;
     private readonly ModCachingService modCachingService;
     private readonly ISubscriptionService subscriptionService;
+    private readonly ILogger<DependenciesService> logger;
 
     public DependenciesService(
         ModsClient modsClient,
         ModCachingService modCachingService,
-        ISubscriptionService subscriptionService
+        ISubscriptionService subscriptionService,
+        ILogger<DependenciesService> logger
     )
     {
         this.modsClient = modsClient;
         this.modCachingService = modCachingService;
         this.subscriptionService = subscriptionService;
+        this.logger = logger;
     }
 
     public async Task Initialize()
@@ -111,7 +115,34 @@ public class DependenciesService
             return new List<Mod>();
         }
 
-        return dependencyIds.Select(x => modCachingService[x]).ToList();
+        List<Mod> dependencies = new();
+
+        foreach (uint dependencyId in dependencyIds)
+        {
+            if (!modCachingService.TryGetMod(dependencyId, out Mod? mod))
+            {
+                logger.LogWarning("Mod {ModId} has a dependency {DependencyId} but it could not be found in the cache",
+                    modId,
+                    dependencyId);
+
+                if (modCachingService.TryGetMod(modId, out Mod? parentMod))
+                {
+                    logger.LogWarning("Follow-up: Parent mod name={Name} and url={Url}",
+                        parentMod.Name,
+                        parentMod.HomepageUrl);
+                }
+                else
+                {
+                    logger.LogWarning("Follow-up: Parent mod could not be found in the cache either!");
+                }
+
+                continue;
+            }
+
+            dependencies.Add(mod);
+        }
+
+        return dependencies;
     }
 
     public IReadOnlyList<uint> GetAllDependencies()
