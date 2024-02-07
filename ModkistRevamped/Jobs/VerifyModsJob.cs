@@ -1,4 +1,5 @@
-﻿using Modio.Models;
+﻿using Microsoft.Extensions.Logging;
+using Modio.Models;
 using TNRD.Modkist.Models;
 using TNRD.Modkist.Services;
 using TNRD.Modkist.Services.Hosted;
@@ -17,6 +18,7 @@ public class VerifyModsJob : JobBase
     private readonly ModCachingService modCachingService;
     private readonly SnackbarQueueService snackbarQueueService;
     private readonly ISnackbarService snackbarService;
+    private readonly ILogger<VerifyModsJob> logger;
 
     public VerifyModsJob(
         InstallationService installationService,
@@ -25,7 +27,8 @@ public class VerifyModsJob : JobBase
         DependenciesService dependenciesService,
         ModCachingService modCachingService,
         SnackbarQueueService snackbarQueueService,
-        ISnackbarService snackbarService
+        ISnackbarService snackbarService,
+        ILogger<VerifyModsJob> logger
     )
     {
         this.installationService = installationService;
@@ -35,6 +38,7 @@ public class VerifyModsJob : JobBase
         this.modCachingService = modCachingService;
         this.snackbarQueueService = snackbarQueueService;
         this.snackbarService = snackbarService;
+        this.logger = logger;
     }
 
     public override Task ExecuteAsync(CancellationToken cancellationToken)
@@ -118,10 +122,17 @@ public class VerifyModsJob : JobBase
         {
             bool isAvailableOnline = subscribedMods.Any(x => x.Id == installedMod.ModId);
 
-            if (!isAvailableOnline)
+            if (isAvailableOnline)
+                continue;
+
+            if (!modCachingService.TryGetMod(installedMod.ModId, out Mod? cachedMod))
             {
-                modsToRemove.Add(modCachingService[installedMod.ModId]);
+                logger.LogWarning("Found installed mod with id {Id} but could not find it in the cache",
+                    installedMod.ModId);
+                continue;
             }
+
+            modsToRemove.Add(cachedMod);
         }
 
         if (modsToRemove.Count > 0)
