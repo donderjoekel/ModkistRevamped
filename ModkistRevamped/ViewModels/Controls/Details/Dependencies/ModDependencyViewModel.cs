@@ -1,5 +1,6 @@
 ﻿using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Microsoft.Extensions.Logging;
 using Modio;
 using Modio.Models;
 using TNRD.Modkist.Services;
@@ -18,7 +19,8 @@ public partial class ModDependencyViewModel : ObservableObject
     private readonly SelectedModService selectedModService;
     private readonly ModsClient modsClient;
     private readonly Dependency dependency;
-    private readonly Mod mod;
+    private readonly Mod? mod;
+    private readonly ILogger<ModDependencyViewModel> logger;
 
     public ModDependencyViewModel(
         ImageCachingService imageCachingService,
@@ -28,31 +30,52 @@ public partial class ModDependencyViewModel : ObservableObject
         Dependency dependency,
         ModCachingService modCachingService,
         ISubscriptionService subscriptionService,
-        DependenciesService dependenciesService
-    )
+        DependenciesService dependenciesService,
+        SnackbarQueueService snackbarQueueService,
+        ILogger<ModDependencyViewModel> logger)
     {
         this.imageCachingService = imageCachingService;
         this.navigationService = navigationService;
         this.selectedModService = selectedModService;
         this.modsClient = modsClient;
         this.dependency = dependency;
+        this.logger = logger;
 
-        mod = modCachingService[dependency.ModId];
-        Name = mod.Name;
+        if (!modCachingService.TryGetMod(this.dependency.ModId, out mod))
+        {
+            logger.LogError("Mod with id '{Id}' not found in cache!", this.dependency.ModId);
+            snackbarQueueService.Enqueue(
+                "Uh oh",
+                $"Dependency with id '{this.dependency.ModId}' cannot be found!",
+                ControlAppearance.Danger,
+                new SymbolIcon(SymbolRegular.ErrorCircle24));
+        }
 
-        SubscribeButtonEnabled = subscriptionService.IsSubscribed(mod.Id)
-            ? !dependenciesService.IsDependency(mod)
-            : subscriptionService.CanSubscribe;
+        if (mod == null)
+        {
+            Name = "Unknown mod";
+            SubscribeButtonEnabled = false;
+            SubscribeButtonText = "Unknown";
+            SubscribeButtonAppearance = ControlAppearance.Secondary;
+        }
+        else
+        {
+            Name = mod.Name;
 
-        SubscribeButtonText = subscriptionService.IsSubscribed(mod.Id)
-            ? "Unsubscribe"
-            : "Subscribe";
+            SubscribeButtonEnabled = subscriptionService.IsSubscribed(mod.Id)
+                ? !dependenciesService.IsDependency(mod)
+                : subscriptionService.CanSubscribe;
 
-        SubscribeButtonAppearance = subscriptionService.IsSubscribed(mod.Id)
-            ? ControlAppearance.Secondary
-            : ControlAppearance.Primary;
+            SubscribeButtonText = subscriptionService.IsSubscribed(mod.Id)
+                ? "Unsubscribe"
+                : "Subscribe";
 
-        LoadDependency();
+            SubscribeButtonAppearance = subscriptionService.IsSubscribed(mod.Id)
+                ? ControlAppearance.Secondary
+                : ControlAppearance.Primary;
+
+            LoadDependency();
+        }
     }
 
     [ObservableProperty] private string? name;

@@ -2,6 +2,7 @@
 using Modio;
 using Modio.Filters;
 using Modio.Models;
+using Wpf.Ui.Controls;
 
 namespace TNRD.Modkist.Services.Subscription;
 
@@ -89,7 +90,19 @@ public class RemoteSubscriptionService : ISubscriptionService
                 if (subscriptions.Any(x => x.Id == dependency.ModId))
                     continue;
 
-                await Subscribe(modCachingService[dependency.ModId]);
+                if (modCachingService.TryGetMod(dependency.ModId, out Mod? dependencyMod))
+                {
+                    await Subscribe(dependencyMod);
+                }
+                else
+                {
+                    logger.LogError("Mod with id '{Id}' not found in cache!", dependency.ModId);
+                    snackbarQueueService.Enqueue(
+                        "Uh oh",
+                        $"Dependency with id '{dependency.ModId}' cannot be found!",
+                        ControlAppearance.Danger,
+                        new SymbolIcon(SymbolRegular.ErrorCircle24));
+                }
             }
 
             return true;

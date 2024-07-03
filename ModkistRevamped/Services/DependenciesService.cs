@@ -6,6 +6,7 @@ using Modio.Models;
 using Newtonsoft.Json;
 using TNRD.Modkist.Models;
 using TNRD.Modkist.Services.Subscription;
+using Wpf.Ui.Controls;
 using File = System.IO.File;
 
 namespace TNRD.Modkist.Services;
@@ -17,18 +18,20 @@ public class DependenciesService
     private readonly ModCachingService modCachingService;
     private readonly ISubscriptionService subscriptionService;
     private readonly ILogger<DependenciesService> logger;
+    private readonly SnackbarQueueService snackbarQueueService;
 
     public DependenciesService(
         ModsClient modsClient,
         ModCachingService modCachingService,
         ISubscriptionService subscriptionService,
-        ILogger<DependenciesService> logger
-    )
+        ILogger<DependenciesService> logger,
+        SnackbarQueueService snackbarQueueService)
     {
         this.modsClient = modsClient;
         this.modCachingService = modCachingService;
         this.subscriptionService = subscriptionService;
         this.logger = logger;
+        this.snackbarQueueService = snackbarQueueService;
     }
 
     public async Task Initialize()
@@ -100,7 +103,27 @@ public class DependenciesService
             }
         }
 
-        return dependingModIds.Distinct().Select(x => modCachingService[x]).ToList();
+        List<uint> ids = dependingModIds.Distinct().ToList();
+        List<Mod> dependeningMods = new();
+
+        foreach (uint id in ids)
+        {
+            if (modCachingService.TryGetMod(id, out Mod? mod))
+            {
+                dependeningMods.Add(mod);
+            }
+            else
+            {
+                logger.LogError("Mod with id '{Id}' not found in cache!", id);
+                snackbarQueueService.Enqueue(
+                    "Uh oh",
+                    $"Dependency with id '{id}' cannot be found!",
+                    ControlAppearance.Danger,
+                    new SymbolIcon(SymbolRegular.ErrorCircle24));
+            }
+        }
+
+        return dependeningMods;
     }
 
     public List<Mod> GetDependencies(Mod mod)
@@ -179,8 +202,24 @@ public class DependenciesService
     {
         string dependenciesPath = GetDependenciesPath();
 
-        List<DependencyModel> dependencyModels = dependencyIdToModIds
-            .Select(x => new DependencyModel(x.Key, modCachingService[x.Key].DateUpdated, x.Value)).ToList();
+        List<DependencyModel> dependencyModels = new List<DependencyModel>();
+        foreach (KeyValuePair<uint,HashSet<uint>> kvp in dependencyIdToModIds)
+        {
+            if (modCachingService.TryGetMod(kvp.Key, out Mod? mod))
+            {
+                dependencyModels.Add(new DependencyModel(mod.Id, mod.DateUpdated, kvp.Value));
+            }
+            else
+            {
+                logger.LogError("Mod with id '{Id}' not found in cache!", kvp.Key);
+                snackbarQueueService.Enqueue(
+                    "Uh oh",
+                    $"Dependency with id '{kvp.Key}' cannot be found!",
+                    ControlAppearance.Danger,
+                    new SymbolIcon(SymbolRegular.ErrorCircle24));
+            }
+        }
+
         string json = JsonConvert.SerializeObject(dependencyModels, Formatting.Indented);
         File.WriteAllText(dependenciesPath, json);
     }

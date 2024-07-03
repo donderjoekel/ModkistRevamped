@@ -10,8 +10,6 @@ public class ModCachingService : IEnumerable<Mod>
     private readonly ModsClient modsClient;
     private readonly Dictionary<uint, Mod> idToMod = new();
 
-    public Mod this[uint modId] => idToMod[modId];
-
     public ModCachingService(ModsClient modsClient)
     {
         this.modsClient = modsClient;

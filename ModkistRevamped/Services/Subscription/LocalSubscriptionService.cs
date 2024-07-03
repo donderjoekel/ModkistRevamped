@@ -69,7 +69,25 @@ public class LocalSubscriptionService : ISubscriptionService
 
         try
         {
-            subscriptions.AddRange(localSubscriptions.SubscribedModIds.Select(x => modCachingService[x]));
+            List<Mod> availableLocalMods = new List<Mod>();
+            foreach (uint id in localSubscriptions.SubscribedModIds)
+            {
+                if (modCachingService.TryGetMod(id, out Mod? mod))
+                {
+                    availableLocalMods.Add(mod);
+                }
+                else
+                {
+                    logger.LogError("Mod with id '{Id}' not found in cache!", id);
+                    snackbarQueueService.Enqueue(
+                        "Uh oh",
+                        "A mod you are subscribed to cannot be found",
+                        ControlAppearance.Danger,
+                        new SymbolIcon(SymbolRegular.ErrorCircle24));
+                }
+            }
+
+            subscriptions.AddRange(availableLocalMods);
 
             if (notify)
                 SubscriptionsLoaded?.Invoke();
@@ -118,7 +136,19 @@ public class LocalSubscriptionService : ISubscriptionService
             IReadOnlyList<Dependency> dependencies = await modsClient[mod.Id].Dependencies.Get();
             foreach (Dependency dependency in dependencies)
             {
-                await Subscribe(modCachingService[dependency.ModId]);
+                if (modCachingService.TryGetMod(dependency.ModId, out Mod? dependencyMod))
+                {
+                    await Subscribe(dependencyMod);
+                }
+                else
+                {
+                    logger.LogError("Mod with id '{Id}' not found in cache!", dependency.ModId);
+                    snackbarQueueService.Enqueue(
+                        "Uh oh",
+                        $"Dependency with id '{dependency.ModId}' cannot be found!",
+                        ControlAppearance.Danger,
+                        new SymbolIcon(SymbolRegular.ErrorCircle24));
+                }
             }
 
             return true;
