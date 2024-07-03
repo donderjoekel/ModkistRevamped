@@ -65,7 +65,7 @@ public partial class InitializationViewModel : ObservableObject, INavigationAwar
     {
         TextContent = "Checking for update...";
 
-        Release? latestRelease = await gitHubClient.Repository.Release.GetLatest("tnrd-org", "ModkistRevamped");
+        Release? latestRelease = await gitHubClient.Repository.Release.GetLatest("donderjoekel", "ModkistRevamped");
         Version latestReleaseVersion = Version.Parse(latestRelease.TagName.TrimStart('v', 'V'));
         Version? version = Assembly.GetExecutingAssembly().GetName().Version;
 
