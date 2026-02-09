@@ -8,18 +8,23 @@ namespace TNRD.Modkist.Services;
 public class ModCachingService : IEnumerable<Mod>
 {
     private readonly ModsClient modsClient;
+    private readonly UserClient userClient;
     private readonly Dictionary<uint, Mod> idToMod = new();
 
-    public ModCachingService(ModsClient modsClient)
+    public ModCachingService(ModsClient modsClient, UserClient userClient)
     {
         this.modsClient = modsClient;
+        this.userClient = userClient;
     }
 
     public async Task Initialize()
     {
         idToMod.Clear();
 
-        IReadOnlyList<Mod> mods = await modsClient.Search().ToList();
+        var results = await Task.WhenAll(modsClient.Search().ToList(), userClient.GetSubscriptions().ToList(), userClient.GetMods().ToList());
+        IReadOnlyList<Mod> mods = results.SelectMany(list => list)
+                                        .DistinctBy(mod => mod.Id)
+                                        .ToList();
 
         foreach (Mod mod in mods)
         {
