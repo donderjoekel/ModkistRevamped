@@ -27,7 +27,7 @@
             PlaceholderEnabled="True"
             PlaceholderText="Email address"
             Text="{Binding ViewModel.Email, Mode=OneWay}" />
-        <Label Margin="8" Content="Please check your email for your code and enter it here." />
+        <Label Margin="8" Content="Please check your email, including your spam folder, for your code and enter it here." />
         <ui:TextBox
             Margin="8"
             PlaceholderEnabled="True"

@@ -28,7 +28,7 @@ public class ModCachingService : IEnumerable<Mod>
             modsClient.Search().ToList()
         };
         
-        if (settingsService.AccessToken != null)
+        if (settingsService.HasValidAccessToken())
         {
             tasks.Add(userClient.GetSubscriptions().ToList());
             tasks.Add(userClient.GetMods().ToList());
