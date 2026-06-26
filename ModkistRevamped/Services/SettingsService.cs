@@ -24,6 +24,11 @@ public partial class SettingsService : ObservableObject
             {
                 // ignored
             }
+
+            if (HasAccessToken() && !HasValidAccessToken())
+            {
+                ClearAccessToken();
+            }
         }
     }
 
@@ -78,5 +83,17 @@ public partial class SettingsService : ObservableObject
             return false;
 
         return DateTimeOffset.UtcNow < DateTimeOffset.FromUnixTimeSeconds(AccessToken.ExpiredAt!.Value);
+    }
+
+    public bool HasAccessToken()
+    {
+        return AccessToken != null && !string.IsNullOrEmpty(AccessToken.Value);
+    }
+
+    public void ClearAccessToken()
+    {
+        AccessToken = null;
+        SelectedProfile = string.Empty;
+        SkippedLogin = false;
     }
 }
